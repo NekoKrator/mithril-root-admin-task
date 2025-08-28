@@ -5,18 +5,18 @@ import {
     ForbiddenException,
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
-import { Roles } from '../decorators/roles.decorator'
+import { ROLES_KEY } from '../decorators/roles.decorator'
 import { JwtPayload } from '../../src/interfaces/jwt-payload.interface'
 import { Request } from 'express'
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-    constructor(private reflector: Reflector) {}
+    constructor(private reflector: Reflector) { }
 
     canActivate(context: ExecutionContext): boolean {
         const requiredRoles = this.reflector.getAllAndOverride<
             Array<'root_admin' | 'admin' | 'user'>
-        >(Roles, [context.getHandler(), context.getClass()])
+        >(ROLES_KEY, [context.getHandler(), context.getClass()])
 
         if (!requiredRoles || requiredRoles.length === 0) {
             return true

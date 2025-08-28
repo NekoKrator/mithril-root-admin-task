@@ -6,7 +6,7 @@ import { AppService } from './app.service'
 import { AuthModule } from './auth/auth.module'
 import { UserModule } from './user/user.module'
 import { UserController } from './user/user.controller'
-// import { MailModule } from './mail/mail.module';
+// import { MailModule } from './mail/mail.module'
 
 @Module({
     imports: [
