@@ -5,6 +5,7 @@ import AddUserModal from '../components/AddUserModal';
 import EditUserModal from '../components/EditUserModal';
 import { getCurrentUser, logout } from '../services/auth';
 import { useNavigate } from 'react-router';
+import '../css/DashboardPage.css';
 
 export default function DashboardPage() {
   const [users, setUsers] = useState<UserId[]>([]);
@@ -37,33 +38,17 @@ export default function DashboardPage() {
     setEditingUser(null);
   };
 
-  if (currentUser?.role === 'user') {
-    return (
-      <div>
-        <p>You do not have access to this page.</p>
-        <button
-          onClick={() => {
-            logout();
-            navigate('/');
-          }}
-        >
-          Logout
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>User Management Dashboard</h2>
+    <div>
+      <h1>User Management Dashboard</h1>
 
+      <p>
+        Hello, <span style={{ color: 'red' }}>{currentUser.email}</span>! You
+        have the role of{' '}
+        <span style={{ color: 'red' }}>{currentUser.role}</span>
+      </p>
       {currentUser?.role === 'root_admin' && (
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          style={{ marginBottom: '20px', padding: '10px 15px' }}
-        >
-          Add New User
-        </button>
+        <button onClick={() => setIsAddModalOpen(true)}>Add New User</button>
       )}
 
       <button
@@ -71,7 +56,6 @@ export default function DashboardPage() {
           logout();
           navigate('/login');
         }}
-        style={{ marginBottom: '20px', padding: '10px 15px' }}
       >
         Logout
       </button>
@@ -79,7 +63,11 @@ export default function DashboardPage() {
       {users.length === 0 ? (
         <p>No users found</p>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table
+          style={{
+            width: '100%',
+          }}
+        >
           <thead>
             <tr>
               <th>ID</th>
@@ -98,7 +86,12 @@ export default function DashboardPage() {
                 <td>{user.role}</td>
                 <td>
                   {currentUser?.role === 'root_admin' && (
-                    <button onClick={() => handleEditUser(user)}>Edit</button>
+                    <button
+                      style={{ width: '100%' }}
+                      onClick={() => handleEditUser(user)}
+                    >
+                      Edit
+                    </button>
                   )}
                 </td>
               </tr>

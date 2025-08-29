@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { updateUser } from '../services/users';
 import type { EditModal } from '../types/types';
-import styles from './UserModal.module.css';
+import styles from '../css/UserModal.module.css';
 
 export default function EditUserModal({ user, onDone, onClose }: EditModal) {
   const [email, setEmail] = useState(user?.email || '');

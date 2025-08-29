@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { createUser } from '../services/users';
 import type { Modal, Role } from '../types/types';
-import styles from './UserModal.module.css';
+import styles from '../css/UserModal.module.css';
 
 export default function AddUserModal({ onDone, onClose }: Modal) {
   const [email, setEmail] = useState('');

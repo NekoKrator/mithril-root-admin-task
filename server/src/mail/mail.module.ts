@@ -4,9 +4,9 @@ import { MailController } from './mail.controller'
 import { MailService } from './mail.service'
 import * as nodemailer from 'nodemailer'
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter'
-import { join } from 'path'
+// import { join } from 'path'
 
-let testAccount = {}
+let testAccount
 
 nodemailer.createTestAccount().then((account) => {
     testAccount = account
@@ -23,8 +23,6 @@ nodemailer.createTestAccount().then((account) => {
                         port: testAccount.smtp.port,
                         secure: testAccount.smtp.secure,
                         auth: {
-                            // user: testAccount.user,
-                            // pass: testAccount.pass,
                             user: process.env.SMTP_USER,
                             pass: process.env.SMTP_PASSWORD,
                         },
