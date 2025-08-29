@@ -31,9 +31,3 @@ export function getCurrentUser() {
     return null;
   }
 }
-
-export function canEdit() {
-  const user = getCurrentUser();
-
-  return user?.role === 'root_admin';
-}

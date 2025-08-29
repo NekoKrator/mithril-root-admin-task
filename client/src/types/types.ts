@@ -10,7 +10,13 @@ export interface UserId extends User {
   createdAt: string,
 }
 
+export type Role = 'admin' | 'user';
+
 export interface Modal {
   onDone: () => Promise<void>;
   onClose: () => void;
+}
+
+export interface EditModal extends Modal {
+  user?: UserId;
 }

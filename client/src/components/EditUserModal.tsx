@@ -1,22 +1,15 @@
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect } from 'react';
 import { updateUser } from '../services/users';
-import type { UserId } from '../types/types';
+import type { EditModal } from '../types/types';
+import styles from './UserModal.module.css';
 
-interface EditUserModalProps {
-  user?: UserId;
-  onDone: () => void;
-  onClose: () => void;
-}
-
-export default function EditUserModal({
-  user,
-  onDone,
-  onClose,
-}: EditUserModalProps) {
+export default function EditUserModal({ user, onDone, onClose }: EditModal) {
   const [email, setEmail] = useState(user?.email || '');
   const [password, setPassword] = useState('');
   const [name, setName] = useState(user?.name || '');
-  const [role, setRole] = useState<'admin' | 'user'>(user?.role || 'user');
+  const [role, setRole] = useState<'admin' | 'user'>(
+    (user?.role as 'admin' | 'user') ?? 'user'
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,7 +17,7 @@ export default function EditUserModal({
     if (user) {
       setEmail(user.email);
       setName(user.name);
-      setRole(user.role);
+      setRole(user.role as 'admin' | 'user');
     }
   }, [user]);
 
@@ -51,32 +44,14 @@ export default function EditUserModal({
   }
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: 'white',
-          padding: '20px',
-          borderRadius: '8px',
-          minWidth: '300px',
-        }}
-      >
+    <div className={styles.backdrop}>
+      <div className={styles.modal}>
         <h3>Edit User</h3>
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '10px' }}>
-            <label>Email:</label>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Email:</label>
             <input
+              className={styles.input}
               type='email'
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -84,9 +59,10 @@ export default function EditUserModal({
               style={{ width: '100%', padding: '5px' }}
             />
           </div>
-          <div style={{ marginBottom: '10px' }}>
-            <label>Password:</label>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Password:</label>
             <input
+              className={styles.input}
               placeholder='Enter new password'
               type='password'
               value={password}
@@ -95,9 +71,10 @@ export default function EditUserModal({
               style={{ width: '100%', padding: '5px' }}
             />
           </div>
-          <div style={{ marginBottom: '10px' }}>
-            <label>Name:</label>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Name:</label>
             <input
+              className={styles.input}
               type='text'
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -105,9 +82,10 @@ export default function EditUserModal({
               style={{ width: '100%', padding: '5px' }}
             />
           </div>
-          <div style={{ marginBottom: '10px' }}>
-            <label>Role:</label>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Role:</label>
             <select
+              className={styles.input}
               value={role}
               onChange={(e) => setRole(e.target.value as 'admin' | 'user')}
               style={{ width: '100%', padding: '5px' }}
@@ -116,14 +94,17 @@ export default function EditUserModal({
               <option value='admin'>Admin</option>
             </select>
           </div>
-          {error && (
-            <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>
-          )}
-          <div>
-            <button type='submit' disabled={loading}>
+          {error && <div className={styles.error}>{error}</div>}
+          <div className={styles.actions}>
+            <button
+              className={styles.primaryBtn}
+              type='submit'
+              disabled={loading}
+            >
               {loading ? 'Updating...' : 'Update User'}
             </button>
             <button
+              className={styles.secondaryBtn}
               type='button'
               onClick={onClose}
               style={{ marginLeft: '10px' }}

@@ -17,7 +17,7 @@ import { Roles } from '../../common/decorators/roles.decorator'
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class UserController {
-    constructor(private usersService: UserService) { }
+    constructor(private usersService: UserService) {}
 
     @Post()
     @Roles('root_admin')
@@ -26,7 +26,7 @@ export class UserController {
     }
 
     @Get()
-    @Roles('root_admin')
+    @Roles('root_admin', 'admin')
     async list() {
         return this.usersService.list()
     }

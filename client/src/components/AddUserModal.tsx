@@ -1,12 +1,9 @@
 import { useState } from 'react';
 import { createUser } from '../services/users';
+import type { Modal, Role } from '../types/types';
+import styles from './UserModal.module.css';
 
-interface AddUserModalProps {
-  onDone: () => void;
-  onClose: () => void;
-}
-
-export default function AddUserModal({ onDone, onClose }: AddUserModalProps) {
+export default function AddUserModal({ onDone, onClose }: Modal) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -31,81 +28,68 @@ export default function AddUserModal({ onDone, onClose }: AddUserModalProps) {
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: 'white',
-          padding: '20px',
-          borderRadius: '8px',
-          minWidth: '300px',
-        }}
-      >
+    <div className={styles.backdrop}>
+      <div className={styles.modal}>
         <h3>Add New User</h3>
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '10px' }}>
-            <label>Email:</label>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Email:</label>
             <input
+              className={styles.input}
               type='email'
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              style={{ width: '100%', padding: '5px' }}
             />
           </div>
-          <div style={{ marginBottom: '10px' }}>
-            <label>Password:</label>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Password:</label>
             <input
+              className={styles.input}
               type='password'
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              style={{ width: '100%', padding: '5px' }}
             />
           </div>
-          <div style={{ marginBottom: '10px' }}>
-            <label>Name:</label>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Name:</label>
             <input
+              className={styles.input}
               type='text'
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              style={{ width: '100%', padding: '5px' }}
             />
           </div>
-          <div style={{ marginBottom: '10px' }}>
-            <label>Role:</label>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Role:</label>
             <select
               value={role}
-              onChange={(e) => setRole(e.target.value as 'admin' | 'user')}
-              style={{ width: '100%', padding: '5px' }}
+              onChange={(e) => setRole(e.target.value as Role)}
             >
               <option value='user'>User</option>
               <option value='admin'>Admin</option>
             </select>
           </div>
-          {error && (
-            <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>
-          )}
-          <div>
-            <button type='submit' disabled={loading}>
+
+          {error && <div className={styles.error}>{error}</div>}
+
+          <div className={styles.actions}>
+            <button
+              className={styles.primaryBtn}
+              type='submit'
+              disabled={loading}
+            >
               {loading ? 'Creating...' : 'Create User'}
             </button>
             <button
+              className={styles.secondaryBtn}
               type='button'
               onClick={onClose}
-              style={{ marginLeft: '10px' }}
             >
               Cancel
             </button>

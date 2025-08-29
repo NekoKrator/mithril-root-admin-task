@@ -5,21 +5,23 @@ import { User } from './entities/users.entity'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import * as bcrypt from 'bcrypt'
+import { MailService } from 'src/mail/mail.service'
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User)
-        private readonly userRepository: Repository<User>
+        private readonly userRepository: Repository<User>,
+        private readonly mailService: MailService
     ) { }
 
     async create(data: CreateUserDto): Promise<User> {
-        // Хешируем пароль ПЕРЕД созданием объекта
-        const hashedPassword = await bcrypt.hash(data.password, 10)
+        await this.mailService.sendEmail(data.email, data.name, data.password)
 
+        const hashedPassword = await bcrypt.hash(data.password, 10)
         const newUser = this.userRepository.create({
             ...data,
-            password: hashedPassword
+            password: hashedPassword,
         })
 
         return this.userRepository.save(newUser)
@@ -43,7 +45,6 @@ export class UserService {
             throw new NotFoundException(`User with id ${id} not found`)
         }
 
-        // Если пароль передан, хешируем его
         if (dto.password) {
             dto.password = await bcrypt.hash(dto.password, 10)
         }

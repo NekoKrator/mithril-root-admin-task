@@ -3,12 +3,16 @@ import { useState, useEffect } from 'react';
 import type { UserId } from '../types/types';
 import AddUserModal from '../components/AddUserModal';
 import EditUserModal from '../components/EditUserModal';
-import { canEdit } from '../services/auth';
+import { getCurrentUser, logout } from '../services/auth';
+import { useNavigate } from 'react-router';
 
 export default function DashboardPage() {
   const [users, setUsers] = useState<UserId[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserId | null>(null);
+
+  const navigate = useNavigate();
+  const currentUser = getCurrentUser();
 
   const load = async () => {
     try {
@@ -20,8 +24,10 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    load();
-  }, []);
+    if (currentUser?.role === 'root_admin' || currentUser?.role === 'admin') {
+      load();
+    }
+  }, [currentUser]);
 
   const handleEditUser = (user: UserId) => {
     setEditingUser(user);
@@ -31,14 +37,43 @@ export default function DashboardPage() {
     setEditingUser(null);
   };
 
+  if (currentUser?.role === 'user') {
+    return (
+      <div>
+        <p>You do not have access to this page.</p>
+        <button
+          onClick={() => {
+            logout();
+            navigate('/');
+          }}
+        >
+          Logout
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: '20px' }}>
       <h2>User Management Dashboard</h2>
+
+      {currentUser?.role === 'root_admin' && (
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          style={{ marginBottom: '20px', padding: '10px 15px' }}
+        >
+          Add New User
+        </button>
+      )}
+
       <button
-        onClick={() => setIsAddModalOpen(true)}
+        onClick={() => {
+          logout();
+          navigate('/login');
+        }}
         style={{ marginBottom: '20px', padding: '10px 15px' }}
       >
-        Add New User
+        Logout
       </button>
 
       {users.length === 0 ? (
@@ -47,44 +82,23 @@ export default function DashboardPage() {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
-              <th style={{ border: '1px solid #ccc', padding: '10px' }}>ID</th>
-              <th style={{ border: '1px solid #ccc', padding: '10px' }}>
-                Email
-              </th>
-              <th style={{ border: '1px solid #ccc', padding: '10px' }}>
-                Name
-              </th>
-              <th style={{ border: '1px solid #ccc', padding: '10px' }}>
-                Role
-              </th>
-              <th style={{ border: '1px solid #ccc', padding: '10px' }}>
-                Actions
-              </th>
+              <th>ID</th>
+              <th>Email</th>
+              <th>Name</th>
+              <th>Role</th>
+              {currentUser?.role === 'root_admin' && <th>Actions</th>}
             </tr>
           </thead>
           <tbody>
             {users.map((user) => (
               <tr key={user.id}>
-                <td style={{ border: '1px solid #ccc', padding: '10px' }}>
-                  {user.id.slice(0, 8)}...
-                </td>
-                <td style={{ border: '1px solid #ccc', padding: '10px' }}>
-                  {user.email}
-                </td>
-                <td style={{ border: '1px solid #ccc', padding: '10px' }}>
-                  {user.name}
-                </td>
-                <td style={{ border: '1px solid #ccc', padding: '10px' }}>
-                  {user.role}
-                </td>
-                <td style={{ border: '1px solid #ccc', padding: '10px' }}>
-                  {canEdit() && (
-                    <button
-                      onClick={() => handleEditUser(user)}
-                      style={{ padding: '5px 10px' }}
-                    >
-                      Edit
-                    </button>
+                <td>{user.id.slice(0, 8)}...</td>
+                <td>{user.email}</td>
+                <td>{user.name}</td>
+                <td>{user.role}</td>
+                <td>
+                  {currentUser?.role === 'root_admin' && (
+                    <button onClick={() => handleEditUser(user)}>Edit</button>
                   )}
                 </td>
               </tr>
@@ -96,7 +110,6 @@ export default function DashboardPage() {
       {isAddModalOpen && (
         <AddUserModal onDone={load} onClose={() => setIsAddModalOpen(false)} />
       )}
-
       {editingUser && (
         <EditUserModal
           user={editingUser}

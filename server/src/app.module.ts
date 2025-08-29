@@ -6,7 +6,7 @@ import { AppService } from './app.service'
 import { AuthModule } from './auth/auth.module'
 import { UserModule } from './user/user.module'
 import { UserController } from './user/user.controller'
-// import { MailModule } from './mail/mail.module'
+import { MailModule } from './mail/mail.module'
 
 @Module({
     imports: [
@@ -27,11 +27,11 @@ import { UserController } from './user/user.controller'
             autoLoadEntities: true,
             synchronize: true,
         }),
+        MailModule,
         AuthModule,
         UserModule,
-        // MailModule,
     ],
     controllers: [AppController, UserController],
     providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
