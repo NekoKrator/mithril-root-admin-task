@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common'
 import { MailerModule } from '@nestjs-modules/mailer'
-import { MailController } from './mail.controller'
 import { MailService } from './mail.service'
 import * as nodemailer from 'nodemailer'
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter'
@@ -42,7 +41,6 @@ nodemailer.createTestAccount().then((account) => {
             },
         }),
     ],
-    controllers: [MailController],
     providers: [MailService],
     exports: [MailService],
 })

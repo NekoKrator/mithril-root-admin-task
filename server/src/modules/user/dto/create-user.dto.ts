@@ -21,7 +21,6 @@ export class CreateUserDto {
     @MaxLength(16)
     name: string
 
-    @IsString()
     @IsEnum(UserRole)
     role: UserRole
 }

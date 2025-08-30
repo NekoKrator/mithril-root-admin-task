@@ -5,7 +5,7 @@ import { User } from './entities/users.entity'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import * as bcrypt from 'bcrypt'
-import { MailService } from 'src/mail/mail.service'
+import { MailService } from 'src/modules/mail/mail.service'
 
 @Injectable()
 export class UserService {
