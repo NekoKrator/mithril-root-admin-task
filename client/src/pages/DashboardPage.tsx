@@ -5,7 +5,7 @@ import AddUserModal from '../components/AddUserModal';
 import EditUserModal from '../components/EditUserModal';
 import { getCurrentUser, logout } from '../services/auth';
 import { useNavigate } from 'react-router';
-import '../css/DashboardPage.css';
+import styles from '../css/DashboardPage.module.css';
 
 export default function DashboardPage() {
   const [users, setUsers] = useState<UserId[]>([]);
@@ -39,77 +39,84 @@ export default function DashboardPage() {
   };
 
   return (
-    <div>
-      <h1>User Management Dashboard</h1>
+    <div className={styles.background}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>User Management Dashboard</h1>
+        <p className={styles.greetings}>
+          Hello, <span className={styles.important}>{currentUser.email}</span>!
+          You have the role of{' '}
+          <span className={styles.important}>{currentUser.role}</span>!
+        </p>
+      </div>
 
-      <p>
-        Hello, <span style={{ color: 'red' }}>{currentUser.email}</span>! You
-        have the role of{' '}
-        <span style={{ color: 'red' }}>{currentUser.role}</span>
-      </p>
-      {currentUser?.role === 'root_admin' && (
-        <button onClick={() => setIsAddModalOpen(true)}>Add New User</button>
-      )}
+      <div className={styles.dashboard}>
+        <div className={styles.actions}>
+          <button
+            className={styles.primaryBtn}
+            onClick={() => setIsAddModalOpen(true)}
+          >
+            Add New User
+          </button>
 
-      <button
-        onClick={() => {
-          logout();
-          navigate('/login');
-        }}
-      >
-        Logout
-      </button>
+          <button
+            className={styles.secondaryBtn}
+            onClick={() => {
+              logout();
+              navigate('/login');
+            }}
+          >
+            Logout
+          </button>
+        </div>
 
-      {users.length === 0 ? (
-        <p>No users found</p>
-      ) : (
-        <table
-          style={{
-            width: '100%',
-          }}
-        >
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Email</th>
-              <th>Name</th>
-              <th>Role</th>
-              {currentUser?.role === 'root_admin' && <th>Actions</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.id}>
-                <td>{user.id.slice(0, 8)}...</td>
-                <td>{user.email}</td>
-                <td>{user.name}</td>
-                <td>{user.role}</td>
-                <td>
-                  {currentUser?.role === 'root_admin' && (
+        {users.length === 0 ? (
+          <p>No users found</p>
+        ) : (
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user.id}>
+                  <td>{user.id}</td>
+                  <td>{user.email}</td>
+                  <td>{user.name}</td>
+                  <td>{user.role}</td>
+                  <td>
                     <button
-                      style={{ width: '100%' }}
+                      className={styles.editBtn}
                       onClick={() => handleEditUser(user)}
                     >
                       Edit
                     </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
 
-      {isAddModalOpen && (
-        <AddUserModal onDone={load} onClose={() => setIsAddModalOpen(false)} />
-      )}
-      {editingUser && (
-        <EditUserModal
-          user={editingUser}
-          onDone={load}
-          onClose={closeEditModal}
-        />
-      )}
+        {isAddModalOpen && (
+          <AddUserModal
+            onDone={load}
+            onClose={() => setIsAddModalOpen(false)}
+          />
+        )}
+        {editingUser && (
+          <EditUserModal
+            user={editingUser}
+            onDone={load}
+            onClose={closeEditModal}
+          />
+        )}
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { updateUser } from '../services/users';
-import type { EditModal } from '../types/types';
+import type { EditModal, Role } from '../types/types';
 import styles from '../css/UserModal.module.css';
 
 export default function EditUserModal({ user, onDone, onClose }: EditModal) {
@@ -46,68 +46,66 @@ export default function EditUserModal({ user, onDone, onClose }: EditModal) {
   return (
     <div className={styles.backdrop}>
       <div className={styles.modal}>
-        <h3>Edit User</h3>
+        <h3 className={styles.title}>Edit this User</h3>
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
-            <label className={styles.label}>Email:</label>
             <input
+              placeholder='Email'
               className={styles.input}
               type='email'
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              style={{ width: '100%', padding: '5px' }}
             />
           </div>
+
           <div className={styles.formGroup}>
-            <label className={styles.label}>Password:</label>
             <input
+              placeholder='Password'
               className={styles.input}
-              placeholder='Enter new password'
               type='password'
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              style={{ width: '100%', padding: '5px' }}
             />
           </div>
+
           <div className={styles.formGroup}>
-            <label className={styles.label}>Name:</label>
             <input
+              placeholder='Name'
               className={styles.input}
               type='text'
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              style={{ width: '100%', padding: '5px' }}
             />
           </div>
+
           <div className={styles.formGroup}>
-            <label className={styles.label}>Role:</label>
             <select
-              className={styles.input}
+              className={styles.select}
               value={role}
-              onChange={(e) => setRole(e.target.value as 'admin' | 'user')}
-              style={{ width: '100%', padding: '5px' }}
+              onChange={(e) => setRole(e.target.value as Role)}
             >
               <option value='user'>User</option>
               <option value='admin'>Admin</option>
             </select>
           </div>
+
           {error && <div className={styles.error}>{error}</div>}
+
           <div className={styles.actions}>
             <button
               className={styles.primaryBtn}
               type='submit'
               disabled={loading}
             >
-              {loading ? 'Updating...' : 'Update User'}
+              {loading ? 'Creating...' : 'Create User'}
             </button>
             <button
               className={styles.secondaryBtn}
               type='button'
               onClick={onClose}
-              style={{ marginLeft: '10px' }}
             >
               Cancel
             </button>

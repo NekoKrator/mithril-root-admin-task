@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { login } from '../services/auth';
 import { useNavigate } from 'react-router-dom';
+import styles from '../css/LoginPage.module.css';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -25,21 +26,35 @@ export default function LoginPage() {
   };
 
   return (
-    <form onSubmit={onSubmit}>
-      <h2>Login</h2>
-      <input
-        placeholder='Email'
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        placeholder='Password'
-        type='password'
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button type='submit'>Login</button>
-      {err && <div style={{ color: 'red' }}>{err}</div>}
-    </form>
+    <div className={styles.background}>
+      <form className={styles.form} onSubmit={onSubmit}>
+        <h2 className={styles.title}>Login</h2>
+
+        <div className={styles.formGroup}>
+          <input
+            className={styles.input}
+            placeholder='Email'
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <input
+            className={styles.input}
+            placeholder='Password'
+            type='password'
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+
+        <button className={styles.button} type='submit'>
+          Login
+        </button>
+
+        {err && <div style={{ color: 'red' }}>{err}</div>}
+      </form>
+    </div>
   );
 }

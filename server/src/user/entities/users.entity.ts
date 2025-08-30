@@ -3,6 +3,8 @@ import {
     PrimaryGeneratedColumn,
     Column,
     CreateDateColumn,
+    ManyToOne,
+    JoinColumn,
 } from 'typeorm'
 
 export enum UserRole {
@@ -22,11 +24,15 @@ export class User {
     @Column()
     password: string
 
-    @Column({ nullable: true })
+    @Column()
     name: string
 
     @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
-    role: string
+    role: UserRole
+
+    @ManyToOne(() => User, { nullable: true })
+    @JoinColumn({ name: 'created_by' })
+    createdBy?: User
 
     @CreateDateColumn()
     createdAt: Date

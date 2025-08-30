@@ -1,3 +1,6 @@
+import { z } from 'zod'
+import { UserSchema } from '../services/validation';
+
 export interface User {
   email: string,
   password: string,
@@ -20,3 +23,5 @@ export interface Modal {
 export interface EditModal extends Modal {
   user?: UserId;
 }
+
+export type UserFormData = z.infer<typeof UserSchema>;

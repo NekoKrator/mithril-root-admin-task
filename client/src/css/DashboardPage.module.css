@@ -1,0 +1,90 @@
+.header {
+  text-align: center;
+}
+
+.title {
+  font-size: 48px;
+}
+
+.greetings {
+  font-size: 24px;
+  color: rgb(50, 50, 50);
+}
+
+.important {
+  font-size: 30px;
+  color: rgb(255, 0, 0);
+}
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-top: 16px;
+  width: 25%;
+}
+
+.primaryBtn,
+.secondaryBtn {
+  flex: 1;
+  height: 40px;
+  border: none;
+  border-radius: 5px;
+  outline: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.primaryBtn,
+.editBtn {
+  background-color: #007bff;
+  color: white;
+}
+
+.primaryBtn:hover,
+.editBtn:hover {
+  background-color: #0056b3;
+}
+
+.secondaryBtn {
+  background-color: #e0e0e0;
+}
+
+.secondaryBtn:hover {
+  background-color: #c7c7c7;
+}
+
+.editBtn {
+  width: 100%;
+  height: 40px;
+  border: none;
+  border-radius: 5px;
+  outline: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+table {
+  margin-top: 25px;
+  width: 75%;
+  border-collapse: collapse;
+}
+
+th {
+  background-color: rgb(200, 200, 200);
+}
+
+th,
+td {
+  border: 1px solid black;
+  padding: 10px;
+  text-align: center;
+  vertical-align: middle;
+}

@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { createUser } from '../services/users';
-import type { Modal, Role } from '../types/types';
+import type { Modal, Role, UserFormData } from '../types/types';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import styles from '../css/UserModal.module.css';
+import { UserSchema } from '../services/validation';
 
 export default function AddUserModal({ onDone, onClose }: Modal) {
   const [email, setEmail] = useState('');
@@ -11,7 +14,15 @@ export default function AddUserModal({ onDone, onClose }: Modal) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const {
+    register,
+    formState: { errors },
+  } = useForm<UserFormData>({
+    resolver: zodResolver(UserSchema),
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log(errors);
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -30,44 +41,56 @@ export default function AddUserModal({ onDone, onClose }: Modal) {
   return (
     <div className={styles.backdrop}>
       <div className={styles.modal}>
-        <h3>Add New User</h3>
+        <h3 className={styles.title}>Add New User</h3>
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
-            <label className={styles.label}>Email:</label>
             <input
+              placeholder='Email'
               className={styles.input}
+              {...register('email')}
               type='email'
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+            {errors.email && (
+              <p className={styles.error}>{errors.email.message}</p>
+            )}
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>Password:</label>
             <input
+              placeholder='Password'
               className={styles.input}
+              {...register('password')}
               type='password'
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            {errors.password && (
+              <p className={styles.error}>{errors.password.message}</p>
+            )}
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>Name:</label>
             <input
+              placeholder='Name'
               className={styles.input}
+              {...register('name')}
               type='text'
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
             />
+            {errors.name && (
+              <p className={styles.error}>{errors.name.message}</p>
+            )}
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>Role:</label>
             <select
+              className={styles.select}
               value={role}
               onChange={(e) => setRole(e.target.value as Role)}
             >
