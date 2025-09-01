@@ -1,44 +1,33 @@
 import { Module } from '@nestjs/common'
 import { MailerModule } from '@nestjs-modules/mailer'
 import { MailService } from './mail.service'
-import * as nodemailer from 'nodemailer'
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter'
-// import { join } from 'path'
-
-let testAccount
-
-nodemailer.createTestAccount().then((account) => {
-    testAccount = account
-})
+import { join } from 'path'
 
 @Module({
     imports: [
         MailerModule.forRootAsync({
-            useFactory: async () => {
-                const testAccount = await nodemailer.createTestAccount()
-                return {
-                    transport: {
-                        host: testAccount.smtp.host,
-                        port: testAccount.smtp.port,
-                        secure: testAccount.smtp.secure,
-                        auth: {
-                            user: process.env.SMTP_USER,
-                            pass: process.env.SMTP_PASSWORD,
-                        },
+            useFactory: () => ({
+                transport: {
+                    host: process.env.SMTP_HOST,
+                    port: Number(process.env.SMTP_PORT),
+                    secure: false,
+                    auth: {
+                        user: process.env.SMTP_USER,
+                        pass: process.env.SMTP_PASSWORD,
                     },
-                    defaults: {
-                        from: `"No Reply" <${testAccount.user}>`,
+                },
+                defaults: {
+                    from: `"No Reply" <${process.env.SMTP_USER}>`,
+                },
+                template: {
+                    dir: join(process.cwd(), 'src', 'templates'),
+                    adapter: new HandlebarsAdapter(),
+                    options: {
+                        strict: true,
                     },
-                    template: {
-                        // dir: join(process.cwd(), 'templates'),
-                        dir: 'src\\templates',
-                        adapter: new HandlebarsAdapter(),
-                        options: {
-                            strict: true,
-                        },
-                    },
-                }
-            },
+                },
+            }),
         }),
     ],
     providers: [MailService],

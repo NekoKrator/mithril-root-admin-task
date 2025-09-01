@@ -1,35 +1,40 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { updateUser } from '../services/users';
-import type { EditModal, Role } from '../types/types';
+import type { EditModal, Role, UserFormData } from '../types/types';
 import styles from '../css/UserModal.module.css';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { UserSchema } from '../services/validation';
 
 export default function EditUserModal({ user, onDone, onClose }: EditModal) {
-  const [email, setEmail] = useState(user?.email || '');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState(user?.name || '');
-  const [role, setRole] = useState<'admin' | 'user'>(
-    (user?.role as 'admin' | 'user') ?? 'user'
-  );
+  const [role, setRole] = useState<'admin' | 'user'>('user');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      setEmail(user.email);
-      setName(user.name);
-      setRole(user.role as 'admin' | 'user');
-    }
-  }, [user]);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<UserFormData>({
+    resolver: zodResolver(UserSchema),
+    defaultValues: {
+      email: user?.email,
+      name: user?.name,
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
+  const onSubmit = async (data: UserFormData) => {
+    if (!user) {
+      setError('Failed to get user');
+      return;
+    }
 
     setLoading(true);
     setError(null);
 
     try {
-      await updateUser(user.id, { email, password, name, role });
+      await updateUser(user.id, { ...data, role });
+
       onDone();
       onClose();
     } catch {
@@ -47,38 +52,41 @@ export default function EditUserModal({ user, onDone, onClose }: EditModal) {
     <div className={styles.backdrop}>
       <div className={styles.modal}>
         <h3 className={styles.title}>Edit this User</h3>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className={styles.formGroup}>
             <input
               placeholder='Email'
               className={styles.input}
+              {...register('email')}
               type='email'
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
             />
+            {errors.email && (
+              <p className={styles.error}>{errors.email.message}</p>
+            )}
           </div>
 
           <div className={styles.formGroup}>
             <input
               placeholder='Password'
               className={styles.input}
+              {...register('password')}
               type='password'
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
             />
+            {errors.password && (
+              <p className={styles.error}>{errors.password.message}</p>
+            )}
           </div>
 
           <div className={styles.formGroup}>
             <input
               placeholder='Name'
               className={styles.input}
+              {...register('name')}
               type='text'
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
             />
+            {errors.name && (
+              <p className={styles.error}>{errors.name.message}</p>
+            )}
           </div>
 
           <div className={styles.formGroup}>

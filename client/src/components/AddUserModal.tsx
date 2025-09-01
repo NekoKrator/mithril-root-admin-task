@@ -22,8 +22,10 @@ export default function AddUserModal({ onDone, onClose }: Modal) {
   const onSubmit = async (data: UserFormData) => {
     setLoading(true);
     setError(null);
+
     try {
       await createUser({ ...data, role });
+
       onDone();
       onClose();
     } catch {

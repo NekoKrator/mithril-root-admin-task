@@ -3,6 +3,9 @@ import {
     PrimaryGeneratedColumn,
     Column,
     CreateDateColumn,
+    ManyToOne,
+    JoinColumn,
+    OneToMany,
 } from 'typeorm'
 
 export enum UserRole {
@@ -27,6 +30,19 @@ export class User {
 
     @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
     role: UserRole
+
+    @ManyToOne(() => User, (user) => user.createdUsers, {
+        nullable: true,
+        onDelete: 'SET NULL',
+    })
+    @JoinColumn({ name: 'createdById' })
+    createdBy?: User
+
+    @Column({ nullable: true })
+    createdById?: string
+
+    @OneToMany(() => User, (user) => user.createdBy)
+    createdUsers?: User[]
 
     @CreateDateColumn()
     createdAt: Date
