@@ -100,7 +100,7 @@ export default function EditUserModal({ user, onDone, onClose }: EditModal) {
               type='submit'
               disabled={loading}
             >
-              {loading ? 'Creating...' : 'Create User'}
+              {loading ? 'Saving...' : 'Edit User'}
             </button>
             <button
               className={styles.secondaryBtn}

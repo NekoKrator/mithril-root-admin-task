@@ -7,28 +7,23 @@ import styles from '../css/UserModal.module.css';
 import { UserSchema } from '../services/validation';
 
 export default function AddUserModal({ onDone, onClose }: Modal) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
   const [role, setRole] = useState<'admin' | 'user'>('user');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const {
     register,
+    handleSubmit,
     formState: { errors },
   } = useForm<UserFormData>({
     resolver: zodResolver(UserSchema),
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    console.log(errors);
-    e.preventDefault();
+  const onSubmit = async (data: UserFormData) => {
     setLoading(true);
     setError(null);
-
     try {
-      await createUser({ email, password, name, role });
+      await createUser({ ...data, role });
       onDone();
       onClose();
     } catch {
@@ -42,15 +37,13 @@ export default function AddUserModal({ onDone, onClose }: Modal) {
     <div className={styles.backdrop}>
       <div className={styles.modal}>
         <h3 className={styles.title}>Add New User</h3>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className={styles.formGroup}>
             <input
               placeholder='Email'
               className={styles.input}
               {...register('email')}
               type='email'
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               required
             />
             {errors.email && (
@@ -64,9 +57,6 @@ export default function AddUserModal({ onDone, onClose }: Modal) {
               className={styles.input}
               {...register('password')}
               type='password'
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
             />
             {errors.password && (
               <p className={styles.error}>{errors.password.message}</p>
@@ -79,9 +69,6 @@ export default function AddUserModal({ onDone, onClose }: Modal) {
               className={styles.input}
               {...register('name')}
               type='text'
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
             />
             {errors.name && (
               <p className={styles.error}>{errors.name.message}</p>

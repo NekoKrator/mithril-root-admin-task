@@ -31,8 +31,14 @@
   width: 25%;
 }
 
+.rowActions {
+  display: flex;
+  gap: 8px;
+}
+
 .primaryBtn,
-.secondaryBtn {
+.secondaryBtn,
+.deleteBtn {
   flex: 1;
   height: 40px;
   border: none;
@@ -40,6 +46,11 @@
   outline: none;
   cursor: pointer;
   font-size: 14px;
+}
+
+.deleteBtn {
+  background-color: #e74c3c;
+  color: white;
 }
 
 .primaryBtn,
@@ -53,22 +64,16 @@
   background-color: #0056b3;
 }
 
+.deleteBtn:hover {
+  background-color: #c0392b;
+}
+
 .secondaryBtn {
   background-color: #e0e0e0;
 }
 
 .secondaryBtn:hover {
   background-color: #c7c7c7;
-}
-
-.editBtn {
-  width: 100%;
-  height: 40px;
-  border: none;
-  border-radius: 5px;
-  outline: none;
-  cursor: pointer;
-  font-size: 14px;
 }
 
 table {

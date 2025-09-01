@@ -1,5 +1,5 @@
-import { fetchUsers } from '../services/users';
-import { useState, useEffect } from 'react';
+import { fetchUsers, deleteUser } from '../services/users';
+import { useState, useEffect, useCallback } from 'react';
 import type { UserId } from '../types/types';
 import AddUserModal from '../components/AddUserModal';
 import EditUserModal from '../components/EditUserModal';
@@ -15,36 +15,50 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const currentUser = getCurrentUser();
 
-  const load = async () => {
+  const loadUsers = useCallback(async () => {
     try {
       const fetchedUsers = await fetchUsers();
       setUsers(fetchedUsers);
     } catch (error) {
       console.error('Failed to load users:', error);
     }
-  };
-
-  useEffect(() => {
-    if (currentUser?.role === 'root_admin' || currentUser?.role === 'admin') {
-      load();
-    }
-  }, [currentUser]);
+  }, []);
 
   const handleEditUser = (user: UserId) => {
     setEditingUser(user);
   };
 
+  const handleDeleteUser = useCallback(
+    async (id: string, email: string) => {
+      if (!window.confirm(`Are you sure you want to delete ${email}?`)) return;
+
+      try {
+        await deleteUser(id);
+        await loadUsers();
+      } catch (error) {
+        console.error(`Failed to delete ${email}:`, error);
+      }
+    },
+    [loadUsers]
+  );
+
   const closeEditModal = () => {
     setEditingUser(null);
   };
+
+  useEffect(() => {
+    if (currentUser?.role === 'root_admin' || currentUser?.role === 'admin') {
+      loadUsers();
+    }
+  }, [currentUser, loadUsers]);
 
   return (
     <div className={styles.background}>
       <div className={styles.header}>
         <h1 className={styles.title}>User Management Dashboard</h1>
         <p className={styles.greetings}>
-          Hello, <span className={styles.important}>{currentUser.email}</span>!
-          You have the role of{' '}
+          Welcome, <span className={styles.important}>{currentUser.email}</span>
+          ! You are logged in as{' '}
           <span className={styles.important}>{currentUser.role}</span>!
         </p>
       </div>
@@ -79,6 +93,7 @@ export default function DashboardPage() {
                 <th>Email</th>
                 <th>Name</th>
                 <th>Role</th>
+                {currentUser?.role === 'root_admin' && <th>Created By</th>}
                 <th>Actions</th>
               </tr>
             </thead>
@@ -89,13 +104,24 @@ export default function DashboardPage() {
                   <td>{user.email}</td>
                   <td>{user.name}</td>
                   <td>{user.role}</td>
+                  {currentUser?.role === 'root_admin' && (
+                    <td>{user.createdBy ? user.createdBy.email : 'System'}</td>
+                  )}
                   <td>
-                    <button
-                      className={styles.editBtn}
-                      onClick={() => handleEditUser(user)}
-                    >
-                      Edit
-                    </button>
+                    <div className={styles.rowActions}>
+                      <button
+                        className={styles.primaryBtn}
+                        onClick={() => handleEditUser(user)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className={styles.deleteBtn}
+                        onClick={() => handleDeleteUser(user.id, user.email)}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -105,14 +131,14 @@ export default function DashboardPage() {
 
         {isAddModalOpen && (
           <AddUserModal
-            onDone={load}
+            onDone={loadUsers}
             onClose={() => setIsAddModalOpen(false)}
           />
         )}
         {editingUser && (
           <EditUserModal
             user={editingUser}
-            onDone={load}
+            onDone={loadUsers}
             onClose={closeEditModal}
           />
         )}

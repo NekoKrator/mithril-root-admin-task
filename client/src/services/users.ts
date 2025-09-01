@@ -18,3 +18,7 @@ export async function updateUser(id: string, payload: User) {
 
   return data;
 }
+
+export async function deleteUser(id: string) {
+  return api.delete(`/users/${id}`)
+}
