@@ -1,18 +1,32 @@
 import { useState } from 'react';
 import { login } from '../services/auth';
 import { useNavigate } from 'react-router-dom';
-import styles from '../css/LoginPage.module.css';
+import type { User } from '../types/types';
+import type { FormProps } from 'antd';
+
+import { LockOutlined, MailOutlined } from '@ant-design/icons';
+import {
+  Button,
+  Form,
+  Input,
+  Card,
+  Layout,
+  ConfigProvider,
+  Typography,
+} from 'antd';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [err, setErr] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onFinish: FormProps<User>['onFinish'] = async (values) => {
+    setLoading(true);
+    setError(null);
+
     try {
+      const { email, password } = values;
       const user = await login(email, password);
 
       if (user.role === 'root_admin' || user.role === 'admin') {
@@ -20,41 +34,89 @@ export default function LoginPage() {
       } else {
         navigate('/');
       }
-    } catch {
-      setErr('Invalid email or password');
+    } catch (e) {
+      setError('Invalid email or password');
+      console.error(e);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className={styles.background}>
-      <form className={styles.form} onSubmit={onSubmit}>
-        <h2 className={styles.title}>Login</h2>
+    <ConfigProvider>
+      <Layout
+        style={{
+          minHeight: '100vh',
+          backgroundColor: '#ededed',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '20px',
+        }}
+      >
+        <Card
+          title={<Typography.Title level={3}>Login</Typography.Title>}
+          style={{
+            width: 400,
+            backgroundColor: '#ffffff',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+            borderRadius: 8,
+            alignItems: 'center',
+          }}
+        >
+          <Form
+            name='login'
+            onFinish={onFinish}
+            layout='vertical'
+            autoComplete='off'
+          >
+            <Form.Item
+              label='Email'
+              name='email'
+              rules={[
+                { required: true, message: 'Please input your Email!' },
+                // { type: 'email', message: 'Invalid email format!' },
+              ]}
+            >
+              <Input prefix={<MailOutlined />} placeholder='Email' />
+            </Form.Item>
 
-        <div className={styles.formGroup}>
-          <input
-            className={styles.input}
-            placeholder='Email'
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
+            <Form.Item
+              label='Password'
+              name='password'
+              rules={[
+                { required: true, message: 'Please input your Password!' },
+              ]}
+            >
+              <Input.Password
+                prefix={<LockOutlined />}
+                placeholder='Password'
+              />
+            </Form.Item>
 
-        <div className={styles.formGroup}>
-          <input
-            className={styles.input}
-            placeholder='Password'
-            type='password'
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+            {error && (
+              <Typography.Text
+                type='danger'
+                style={{ display: 'block', marginBottom: 16 }}
+              >
+                {error}
+              </Typography.Text>
+            )}
 
-        <button className={styles.button} type='submit'>
-          Login
-        </button>
-
-        {err && <div style={{ color: 'red' }}>{err}</div>}
-      </form>
-    </div>
+            <Form.Item>
+              <Button
+                block
+                type='primary'
+                size='large'
+                htmlType='submit'
+                loading={loading}
+              >
+                {loading ? 'Loading...' : 'Login'}
+              </Button>
+            </Form.Item>
+          </Form>
+        </Card>
+      </Layout>
+    </ConfigProvider>
   );
 }
