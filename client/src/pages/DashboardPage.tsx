@@ -194,7 +194,7 @@ export default function DashboardPage() {
                     <Button
                       danger
                       size='small'
-                      disabled={user.id === currentUser.id} // Нельзя удалить себя
+                      disabled={user.id === currentUser.id}
                     >
                       Delete
                     </Button>

@@ -77,7 +77,11 @@ export default function UserModal(props: UserModalProps) {
 
   return (
     <>
-      <Button type='primary' onClick={showModal}>
+      <Button
+        type='primary'
+        size={isEditMode ? 'small' : 'middle'}
+        onClick={showModal}
+      >
         {triggerText || modalTitle}
       </Button>
 
