@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { login } from '../services/auth';
 import { useNavigate } from 'react-router-dom';
-import type { User } from '../types/types';
+import type { UserFormData } from '../types/types';
 import type { FormProps } from 'antd';
 
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
@@ -21,7 +21,7 @@ export default function LoginPage() {
 
   const navigate = useNavigate();
 
-  const onFinish: FormProps<User>['onFinish'] = async (values) => {
+  const onFinish: FormProps<UserFormData>['onFinish'] = async (values) => {
     setLoading(true);
     setError(null);
 
@@ -75,10 +75,14 @@ export default function LoginPage() {
               name='email'
               rules={[
                 { required: true, message: 'Please input your Email!' },
-                // { type: 'email', message: 'Invalid email format!' },
+                { type: 'email', message: 'Invalid email format!' },
               ]}
             >
-              <Input prefix={<MailOutlined />} placeholder='Email' />
+              <Input
+                prefix={<MailOutlined />}
+                placeholder='Email'
+                disabled={loading}
+              />
             </Form.Item>
 
             <Form.Item
@@ -91,6 +95,7 @@ export default function LoginPage() {
               <Input.Password
                 prefix={<LockOutlined />}
                 placeholder='Password'
+                disabled={loading}
               />
             </Form.Item>
 

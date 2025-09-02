@@ -5,7 +5,7 @@ export interface User {
   email: string;
   password: string;
   name: string;
-  role: string;
+  role: Role;
 }
 
 export interface UserId extends User {
@@ -19,13 +19,31 @@ export interface UserId extends User {
 
 export type Role = 'admin' | 'user';
 
-export interface Modal {
+export type AllRoles = Role | 'root_admin';
+
+export type UserFormData = z.infer<typeof UserSchema>;
+
+export interface CreateModal {
   onDone: () => Promise<void>
-  onClose: () => void
 }
 
-export interface EditModal extends Modal {
+export interface EditModal extends CreateModal {
   user?: UserId;
 }
 
-export type UserFormData = z.infer<typeof UserSchema>;
+export interface BaseModalProps {
+  onDone: () => void;
+}
+
+export interface CreateModalProps extends BaseModalProps {
+  mode: 'create';
+}
+
+export interface EditModalProps extends BaseModalProps {
+  mode: 'edit';
+  user: UserId;
+}
+
+export type UserModalProps = (CreateModalProps | EditModalProps) & {
+  triggerText?: string;
+};

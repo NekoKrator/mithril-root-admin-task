@@ -1,148 +1,210 @@
-import { fetchUsers, deleteUser } from '../services/users';
 import { useState, useEffect, useCallback } from 'react';
-import type { UserId } from '../types/types';
-import AddUserModal from '../components/AddUserModal';
-import EditUserModal from '../components/EditUserModal';
+import { fetchUsers, deleteUser } from '../services/users';
 import { getCurrentUser, logout } from '../services/auth';
-import { useNavigate } from 'react-router';
-import styles from '../css/DashboardPage.module.css';
+import UserModal from '../components/UserModal';
+import { useNavigate } from 'react-router-dom';
+import {
+  Layout,
+  Card,
+  Typography,
+  Button,
+  Table,
+  Popconfirm,
+  ConfigProvider,
+  Space,
+  Tag,
+} from 'antd';
+import Column from 'antd/es/table/Column';
+import type { Role, UserId } from '../types/types';
+import { roleColors } from '../services/roleColors';
 
 export default function DashboardPage() {
   const [users, setUsers] = useState<UserId[]>([]);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<UserId | null>(null);
-
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const currentUser = getCurrentUser();
 
   const loadUsers = useCallback(async () => {
+    setLoading(true);
+
     try {
       const fetchedUsers = await fetchUsers();
       setUsers(fetchedUsers);
     } catch (error) {
       console.error('Failed to load users:', error);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
-  const handleEditUser = (user: UserId) => {
-    setEditingUser(user);
-  };
-
   const handleDeleteUser = useCallback(
-    async (id: string, email: string) => {
-      if (!window.confirm(`Are you sure you want to delete ${email}?`)) return;
-
+    async (id: string) => {
       try {
         await deleteUser(id);
-        await loadUsers();
+        loadUsers();
       } catch (error) {
-        console.error(`Failed to delete ${email}:`, error);
+        console.error(`Failed to delete user:`, error);
       }
     },
     [loadUsers]
   );
 
-  const closeEditModal = () => {
-    setEditingUser(null);
+  const handleUserModalDone = useCallback(() => {
+    loadUsers();
+  }, [loadUsers]);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   useEffect(() => {
     if (currentUser?.role === 'root_admin' || currentUser?.role === 'admin') {
       loadUsers();
+    } else {
+      navigate('/');
     }
-  }, [currentUser, loadUsers]);
+  }, [currentUser?.role, loadUsers, navigate]);
 
   return (
-    <div className={styles.background}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>User Management Dashboard</h1>
-        <p className={styles.greetings}>
-          Welcome, <span className={styles.important}>{currentUser.email}</span>
-          ! You are logged in as{' '}
-          <span className={styles.important}>{currentUser.role}</span>!
-        </p>
-      </div>
+    <ConfigProvider>
+      <Layout
+        style={{
+          minHeight: '100vh',
+          background: '#ededed',
+          padding: 24,
+        }}
+      >
+        <Card
+          title={
+            <Typography.Title level={3} style={{ margin: 0 }}>
+              User Management
+            </Typography.Title>
+          }
+          style={{
+            maxWidth: 1500,
+            margin: '0 auto',
+            backgroundColor: '#ffffff',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+            borderRadius: 8,
+          }}
+        >
+          <Typography.Paragraph style={{ marginBottom: 16 }}>
+            Welcome, <strong>{currentUser.email}</strong> ({currentUser.role})
+          </Typography.Paragraph>
 
-      <div className={styles.dashboard}>
-        <div className={styles.actions}>
-          <button
-            className={styles.primaryBtn}
-            onClick={() => setIsAddModalOpen(true)}
-          >
-            Add New User
-          </button>
-
-          <button
-            className={styles.secondaryBtn}
-            onClick={() => {
-              logout();
-              navigate('/login');
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 24,
             }}
           >
-            Logout
-          </button>
-        </div>
+            <UserModal
+              mode='create'
+              onDone={handleUserModalDone}
+              triggerText='Add New User'
+            />
 
-        {users.length === 0 ? (
-          <p>No users found</p>
-        ) : (
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Email</th>
-                <th>Name</th>
-                <th>Role</th>
-                {currentUser?.role === 'root_admin' && <th>Created By</th>}
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td>{user.id}</td>
-                  <td>{user.email}</td>
-                  <td>{user.name}</td>
-                  <td>{user.role}</td>
-                  {currentUser?.role === 'root_admin' && (
-                    <td>{user.createdBy ? user.createdBy.email : 'System'}</td>
-                  )}
-                  <td>
-                    <div className={styles.rowActions}>
-                      <button
-                        className={styles.primaryBtn}
-                        onClick={() => handleEditUser(user)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className={styles.deleteBtn}
-                        onClick={() => handleDeleteUser(user.id, user.email)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+            <Button onClick={handleLogout}>Logout</Button>
+          </div>
 
-        {isAddModalOpen && (
-          <AddUserModal
-            onDone={loadUsers}
-            onClose={() => setIsAddModalOpen(false)}
-          />
-        )}
-        {editingUser && (
-          <EditUserModal
-            user={editingUser}
-            onDone={loadUsers}
-            onClose={closeEditModal}
-          />
-        )}
-      </div>
-    </div>
+          <Table<UserId>
+            dataSource={users}
+            rowKey='id'
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} of ${total} users`,
+            }}
+            loading={loading}
+          >
+            <Column
+              title='User ID'
+              dataIndex='id'
+              key='id'
+              width={300}
+              ellipsis
+            />
+            <Column
+              title='Email'
+              dataIndex='email'
+              key='email'
+              width={200}
+              ellipsis
+            />
+            <Column
+              title='Name'
+              dataIndex='name'
+              key='name'
+              width={150}
+              ellipsis
+            />
+            <Column
+              title='Role'
+              dataIndex='role'
+              key='role'
+              width={150}
+              render={(role: string) => (
+                <Tag color={roleColors[role as Role]} key={role}>
+                  {role.toUpperCase()}
+                </Tag>
+              )}
+            />
+
+            {currentUser?.role === 'root_admin' && (
+              <Column
+                title='Created By'
+                dataIndex='createdBy'
+                key='createdBy'
+                width={150}
+                render={(_, user: UserId) => (
+                  <span>
+                    {user.createdBy ? user.createdBy.email : 'System'}
+                  </span>
+                )}
+              />
+            )}
+
+            <Column
+              title='Actions'
+              key='actions'
+              width={200}
+              fixed='right'
+              render={(_, user: UserId) => (
+                <Space size='small'>
+                  <UserModal
+                    mode='edit'
+                    user={user}
+                    onDone={handleUserModalDone}
+                    triggerText='Edit'
+                  />
+
+                  <Popconfirm
+                    title='Delete user'
+                    description={`Are you sure you want to delete ${user.name}?`}
+                    okText='Yes'
+                    cancelText='No'
+                    okType='danger'
+                    onConfirm={() => handleDeleteUser(user.id)}
+                  >
+                    <Button
+                      danger
+                      size='small'
+                      disabled={user.id === currentUser.id} // Нельзя удалить себя
+                    >
+                      Delete
+                    </Button>
+                  </Popconfirm>
+                </Space>
+              )}
+            />
+          </Table>
+        </Card>
+      </Layout>
+    </ConfigProvider>
   );
 }
