@@ -17,7 +17,7 @@ A fully functional web application for user management with a role-based access 
 ## Tech Stack
 
 Frontend: React, Next.js, TypeScript, Ant Desight\
-Backend: NestJS, TypeORM(PostgreSQL), JWT, bcrypt\
+Backend: NestJS, TypeScript, TypeORM(PostgreSQL), JWT, bcrypt\
 Other: Nodemailer, Pug, Axios, Zod, ESLint, Prettier
 
 ## Installation
@@ -25,7 +25,7 @@ Other: Nodemailer, Pug, Axios, Zod, ESLint, Prettier
 1. **Clone repository**
    `git clone https://github.com/NekoKrator/mithril-root-admin-task`
 
-2. **Setup project**
+2. **Setup project:**
 
 ### Client Setup
 
