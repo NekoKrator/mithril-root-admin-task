@@ -6,7 +6,7 @@ export const UserSchema = z.object({
     .trim()
     .min(4, { message: 'Username must be at least 4 characters.' })
     .max(32, { message: 'Username must be no more than 32 characters.' }),
-  email: z.string().email({ message: 'Invalid email address.' }),
+  email: z.string().trim().email({ message: 'Invalid email address.' }),
   password: z
     .string()
     .min(4, { message: 'Password must be at least 4 characters.' })
@@ -14,3 +14,4 @@ export const UserSchema = z.object({
 });
 
 export const UserModal = UserSchema.pick({ email: true, password: true });
+

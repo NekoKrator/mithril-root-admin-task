@@ -1,6 +1,12 @@
 import { api } from './api'
 import type { User } from '../types/types'
 
+export async function findUser(id: string) {
+  const { data } = await api.get(`/users/${id}`)
+
+  return data
+}
+
 export async function fetchUsers() {
   const { data } = await api.get('/users');
 

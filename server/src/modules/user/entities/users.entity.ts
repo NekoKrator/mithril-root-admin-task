@@ -8,6 +8,8 @@ import {
     OneToMany,
 } from 'typeorm'
 
+import { Note } from '../../note/entities/notes.entities'
+
 export enum UserRole {
     ROOT_ADMIN = 'root_admin',
     ADMIN = 'admin',
@@ -40,6 +42,9 @@ export class User {
 
     @Column({ nullable: true })
     createdById?: string
+
+    @OneToMany(() => Note, (note) => note.author)
+    notes?: Note[]
 
     @OneToMany(() => User, (user) => user.createdBy)
     createdUsers?: User[]

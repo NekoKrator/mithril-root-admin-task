@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { UserFormData, Role, UserModalProps } from '../types/types';
 import { Button, Form, Select, Input, Typography, Modal } from 'antd';
-import { createUser, updateUser } from '../services/users';
+import { createUser, updateUser } from '../services/user';
 import { LockOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
 import { UserSchema } from '../services/validation';
 
@@ -22,6 +22,7 @@ export default function UserModal(props: UserModalProps) {
 
   const onSubmit = async (values: UserFormData) => {
     const parsed = UserSchema.safeParse(values);
+
     if (!parsed.success) {
       form.setFields(
         parsed.error.issues.map((issue) => ({
@@ -29,6 +30,7 @@ export default function UserModal(props: UserModalProps) {
           errors: [issue.message],
         }))
       );
+
       return;
     }
 

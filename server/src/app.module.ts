@@ -5,6 +5,8 @@ import { AuthModule } from './modules/auth/auth.module'
 import { UserModule } from './modules/user/user.module'
 import { UserController } from './modules/user/user.controller'
 import { MailModule } from './modules/mail/mail.module'
+import { NoteModule } from './modules/note/note.module'
+import { ScheduleModule } from '@nestjs/schedule'
 
 @Module({
     imports: [
@@ -25,9 +27,11 @@ import { MailModule } from './modules/mail/mail.module'
             autoLoadEntities: true,
             synchronize: true,
         }),
+        ScheduleModule.forRoot(),
         MailModule,
         AuthModule,
         UserModule,
+        NoteModule,
     ],
     controllers: [UserController],
 })

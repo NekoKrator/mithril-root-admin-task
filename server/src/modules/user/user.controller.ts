@@ -35,6 +35,12 @@ export class UserController {
         return this.usersService.list(req.user)
     }
 
+    @Get(':id')
+    @Roles('root_admin', 'admin')
+    async find(@Param('id') id: string) {
+        return this.usersService.find(id)
+    }
+
     @Patch(':id')
     @Roles('root_admin', 'admin')
     async update(@Param('id') id: string, @Body() dto: UpdateUserDto) {

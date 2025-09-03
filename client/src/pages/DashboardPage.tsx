@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchUsers, deleteUser } from '../services/users';
-import { getCurrentUser, logout } from '../services/auth';
+import { fetchUsers, deleteUser } from '../services/user';
+import { getCurrentUser } from '../services/auth';
 import UserModal from '../components/UserModal';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   Layout,
   Card,
@@ -53,11 +53,6 @@ export default function DashboardPage() {
     loadUsers();
   }, [loadUsers]);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
   useEffect(() => {
     if (currentUser?.role === 'root_admin' || currentUser?.role === 'admin') {
       loadUsers();
@@ -89,10 +84,6 @@ export default function DashboardPage() {
             borderRadius: 8,
           }}
         >
-          <Typography.Paragraph style={{ marginBottom: 16 }}>
-            Welcome, <strong>{currentUser.email}</strong> ({currentUser.role})
-          </Typography.Paragraph>
-
           <div
             style={{
               display: 'flex',
@@ -101,13 +92,15 @@ export default function DashboardPage() {
               marginBottom: 24,
             }}
           >
+            <Typography.Paragraph style={{ marginBottom: 16 }}>
+              Welcome, <strong>{currentUser.email}</strong> ({currentUser.role})
+            </Typography.Paragraph>
+
             <UserModal
               mode='create'
               onDone={handleUserModalDone}
               triggerText='Add New User'
             />
-
-            <Button onClick={handleLogout}>Logout</Button>
           </div>
 
           <Table<UserId>
@@ -128,6 +121,13 @@ export default function DashboardPage() {
               key='id'
               width={300}
               ellipsis
+              render={(id) =>
+                currentUser.id === id ? (
+                  <Link to='/'>{id}</Link>
+                ) : (
+                  <Link to={`/user/${id}`}>{id}</Link>
+                )
+              }
             />
             <Column
               title='Email'
@@ -154,7 +154,6 @@ export default function DashboardPage() {
                 </Tag>
               )}
             />
-
             {currentUser?.role === 'root_admin' && (
               <Column
                 title='Created By'

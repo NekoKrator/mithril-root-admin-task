@@ -5,5 +5,6 @@ export interface RequestWithUser extends Request {
     user: {
         userId: string
         role: UserRole
+        id: string
     }
 }

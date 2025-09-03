@@ -21,6 +21,17 @@ export type Role = 'admin' | 'user';
 
 export type AllRoles = Role | 'root_admin';
 
+export interface Note {
+  title: string,
+  content: string,
+  reminderDate: Date | null,
+}
+
+export interface NoteId extends Note {
+  id: string,
+  authorId: string,
+}
+
 export type UserFormData = z.infer<typeof UserSchema>;
 
 export interface CreateModal {
@@ -36,14 +47,24 @@ export interface BaseModalProps {
 }
 
 export interface CreateModalProps extends BaseModalProps {
-  mode: 'create';
+  mode: 'create'
 }
 
 export interface EditModalProps extends BaseModalProps {
-  mode: 'edit';
-  user: UserId;
+  mode: 'edit'
+  user: UserId
+}
+
+export interface NoteEditModalProps extends BaseModalProps {
+  mode: 'edit'
+  note: NoteId
 }
 
 export type UserModalProps = (CreateModalProps | EditModalProps) & {
-  triggerText?: string;
+  triggerText?: string
 };
+
+
+export type NoteModalProps = (CreateModalProps | NoteEditModalProps) & {
+  triggerText?: string
+}

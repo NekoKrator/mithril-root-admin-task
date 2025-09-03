@@ -65,6 +65,17 @@ export class UserService {
         return this.userRepository.find(baseFindOptions)
     }
 
+    async find(id: string): Promise<User | string> {
+        const user = await this.userRepository.findOne({ where: { id } })
+
+        if (!user) {
+            // throw new NotFoundException(`User with id ${id} not found`)
+            return `User with id ${id} not found`
+        }
+
+        return user
+    }
+
     async findByEmail(email: string): Promise<User | null> {
         return this.userRepository.findOne({ where: { email } })
     }
