@@ -12,6 +12,7 @@ import {
   Empty,
   Spin,
   Modal,
+  Flex,
 } from 'antd';
 import { getNotes } from '../services/note';
 
@@ -125,7 +126,9 @@ export default function UserPage() {
                 </Row>
               </Spin>
             ) : (
-              <Empty />
+              <Flex justify='center' align='center' style={{ height: '70vh' }}>
+                <Empty description='No data available' />
+              </Flex>
             )}
           </Card>
         </Spin>

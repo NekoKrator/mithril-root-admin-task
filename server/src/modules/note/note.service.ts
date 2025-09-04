@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Note } from './entities/notes.entities'
-import { User } from '../user/entities/users.entity'
+import { User, UserRole } from '../user/entities/users.entity'
 import { Repository } from 'typeorm'
 import { CreateNoteDto } from './dto/create-note.dto'
 import { UpdateNoteDto } from './dto/update-note.dto'
+import type { CurrentUser } from 'src/interfaces/current-user'
 
 const baseFindOptions = {
     select: {
@@ -65,10 +66,13 @@ export class NoteService {
         return this.noteRepository.find({ where: { authorId: id } })
     }
 
-    async list() {
-        const notes = await this.noteRepository.find(baseFindOptions)
-
-        return notes
+    async list(currentUser: CurrentUser) {
+        if (
+            currentUser.role === UserRole.ADMIN ||
+            currentUser.role === UserRole.ROOT_ADMIN
+        ) {
+            return await this.noteRepository.find({ ...baseFindOptions })
+        }
     }
 
     async update(id: string, dto: UpdateNoteDto, requestorId: string) {

@@ -8,6 +8,7 @@ import { MailModule } from './modules/mail/mail.module'
 import { NoteModule } from './modules/note/note.module'
 import { ScheduleModule } from '@nestjs/schedule'
 import { TaskService } from './modules/task/task/task.service'
+import { Note } from './modules/note/entities/notes.entities'
 
 @Module({
     imports: [
@@ -28,6 +29,7 @@ import { TaskService } from './modules/task/task/task.service'
             autoLoadEntities: true,
             synchronize: true,
         }),
+        TypeOrmModule.forFeature([Note]),
         ScheduleModule.forRoot(),
         MailModule,
         AuthModule,

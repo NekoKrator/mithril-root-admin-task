@@ -11,6 +11,7 @@ import {
   Get,
   Patch,
 } from '@nestjs/common'
+import { Roles } from '../../common/decorators/roles.decorator'
 import type { RequestWithUser } from 'src/interfaces/request-with-user'
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard'
 import { RolesGuard } from '../../common/guards/roles.guard'
@@ -25,6 +26,12 @@ export class NoteController {
   async create(@Body() dto: CreateNoteDto, @Req() req: RequestWithUser) {
     const creatorId = req.user.userId
     return this.noteService.create(dto, creatorId)
+  }
+
+  @Get()
+  @Roles('root_admin', 'admin')
+  async list(@Req() req: RequestWithUser) {
+    return this.noteService.list(req.user)
   }
 
   @Get(':id')

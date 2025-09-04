@@ -16,11 +16,13 @@ import {
   Flex,
 } from 'antd';
 import Column from 'antd/es/table/Column';
-import type { Role, UserId } from '../types/types';
+import type { Role, UserId, NoteId } from '../types/types';
 import { roleColors } from '../services/roleColors';
+import { fetchNotes } from '../services/note';
 
 export default function DashboardPage() {
   const [users, setUsers] = useState<UserId[]>([]);
+  const [notes, setNotes] = useState<NoteId[]>([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const currentUser = getCurrentUser();
@@ -33,6 +35,21 @@ export default function DashboardPage() {
       setUsers(fetchedUsers);
     } catch (error) {
       console.error('Failed to load users:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const loadNotes = useCallback(async () => {
+    setLoading(true);
+
+    console.log('1');
+
+    try {
+      const fetchedNotes = await fetchNotes();
+      setNotes(fetchedNotes);
+    } catch (error) {
+      console.error('Failed to load notes:', error);
     } finally {
       setLoading(false);
     }
@@ -57,10 +74,13 @@ export default function DashboardPage() {
   useEffect(() => {
     if (currentUser?.role === 'root_admin' || currentUser?.role === 'admin') {
       loadUsers();
+      loadNotes();
     } else {
       navigate('/');
     }
-  }, [currentUser?.role, loadUsers, navigate]);
+  }, [currentUser?.role, loadUsers, loadNotes, navigate]);
+
+  console.log(users);
 
   return (
     <ConfigProvider>
@@ -144,17 +164,6 @@ export default function DashboardPage() {
               width={150}
               ellipsis
             />
-            <Column
-              title='Role'
-              dataIndex='role'
-              key='role'
-              width={150}
-              render={(role: string) => (
-                <Tag color={roleColors[role as Role]} key={role}>
-                  {role.toUpperCase()}
-                </Tag>
-              )}
-            />
             {currentUser?.role === 'root_admin' && (
               <Column
                 title='Created By'
@@ -168,11 +177,33 @@ export default function DashboardPage() {
                 )}
               />
             )}
-
+            <Column
+              title='Role'
+              dataIndex='role'
+              key='role'
+              width={100}
+              render={(role: string) => (
+                <Tag color={roleColors[role as Role]} key={role}>
+                  {role.toUpperCase()}
+                </Tag>
+              )}
+            />
+            <Column
+              title='Notes'
+              dataIndex='notes'
+              key='notes'
+              width={100}
+              render={(_, user: UserId) => {
+                const count = notes.filter(
+                  (note) => note.authorId === user.id
+                ).length;
+                return <span>{count}</span>;
+              }}
+            />
             <Column
               title='Actions'
               key='actions'
-              width={200}
+              width={100}
               fixed='right'
               render={(_, user: UserId) => (
                 <Space size='small'>

@@ -7,6 +7,12 @@ export async function createNote(payload: Note) {
   return data;
 }
 
+export async function fetchNotes() {
+  const { data } = await api.get('/notes');
+
+  return data
+}
+
 export async function getNotes(id: string) {
   const { data } = await api.get(`/notes/user/${id}`)
 

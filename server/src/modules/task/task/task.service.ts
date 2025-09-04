@@ -1,28 +1,35 @@
 import { Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
 import { Cron } from '@nestjs/schedule'
 import { MailService } from 'src/modules/mail/mail.service'
 import { NoteService } from 'src/modules/note/note.service'
 import { UserService } from 'src/modules/user/user.service'
+import { Repository } from 'typeorm'
+import { Note } from '../../note/entities/notes.entities'
 
-interface Note {
-    title: string
-    content: string
-    reminderDate: Date | null
-    id: string
-    authorId: string
-}
+// interface NoteId {
+//     title: string
+//     content: string
+//     reminderDate: Date | null
+//     id: string
+//     authorId: string
+// }
 
 @Injectable()
 export class TaskService {
     constructor(
         private readonly noteService: NoteService,
         private readonly mailService: MailService,
-        private readonly userService: UserService
+        private readonly userService: UserService,
+
+        @InjectRepository(Note)
+        private readonly noteRepository: Repository<Note>
     ) { }
 
     @Cron('*/10 * * * * *')
     async handleCronJob() {
-        const notes = await this.noteService.list()
+        // const notes = await this.noteService.list()
+        const notes = await this.noteRepository.find()
         const now = new Date()
 
         notes
