@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchUsers, deleteUser } from '../services/user';
 import { getCurrentUser } from '../services/auth';
 import UserModal from '../components/UserModal';
@@ -14,11 +14,14 @@ import {
   Space,
   Tag,
   Flex,
+  Input,
 } from 'antd';
 import Column from 'antd/es/table/Column';
 import type { Role, UserId, NoteId } from '../types/types';
+import type { InputRef } from 'antd';
 import { roleColors } from '../services/roleColors';
 import { fetchNotes } from '../services/note';
+import { SearchOutlined } from '@ant-design/icons';
 
 export default function DashboardPage() {
   const [users, setUsers] = useState<UserId[]>([]);
@@ -27,9 +30,12 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const currentUser = getCurrentUser();
 
+  // const [searchText, setSearchText] = useState('');
+  // const [searchedColumn, setSearchedColumn] = useState('');
+  const searchInput = useRef<InputRef>(null);
+
   const loadUsers = useCallback(async () => {
     setLoading(true);
-
     try {
       const fetchedUsers = await fetchUsers();
       setUsers(fetchedUsers);
@@ -42,9 +48,6 @@ export default function DashboardPage() {
 
   const loadNotes = useCallback(async () => {
     setLoading(true);
-
-    console.log('1');
-
     try {
       const fetchedNotes = await fetchNotes();
       setNotes(fetchedNotes);
@@ -80,7 +83,10 @@ export default function DashboardPage() {
     }
   }, [currentUser?.role, loadUsers, loadNotes, navigate]);
 
-  console.log(users);
+  const enrichedUsers = users.map((u) => ({
+    ...u,
+    notesCount: notes.filter((n) => n.authorId === u.id).length,
+  }));
 
   return (
     <ConfigProvider>
@@ -124,7 +130,7 @@ export default function DashboardPage() {
           </Flex>
 
           <Table<UserId>
-            dataSource={users}
+            dataSource={enrichedUsers}
             rowKey='id'
             pagination={{
               pageSize: 10,
@@ -156,6 +162,34 @@ export default function DashboardPage() {
               key='email'
               width={200}
               ellipsis
+              filterDropdown={
+                <div
+                  style={{ padding: 8 }}
+                  onKeyDown={(e) => e.stopPropagation()}
+                >
+                  <Input
+                    ref={searchInput}
+                    placeholder={'Search email'}
+                    style={{ marginBottom: 8, display: 'block' }}
+                  />
+                  <Space>
+                    <Button
+                      type='primary'
+                      icon={<SearchOutlined />}
+                      size='small'
+                      style={{ width: 90 }}
+                    >
+                      Search
+                    </Button>
+                    <Button size='small' style={{ width: 90 }}>
+                      Reset
+                    </Button>
+                    <Button type='link' size='small'>
+                      Close
+                    </Button>
+                  </Space>
+                </div>
+              }
             />
             <Column
               title='Name'
@@ -187,18 +221,32 @@ export default function DashboardPage() {
                   {role.toUpperCase()}
                 </Tag>
               )}
+              filters={[
+                {
+                  text: 'Root Admin',
+                  value: 'root_admin',
+                },
+                {
+                  text: 'Admin',
+                  value: 'admin',
+                },
+                {
+                  text: 'User',
+                  value: 'user',
+                },
+              ]}
+              onFilter={(value, record) =>
+                record.role.includes(value as string)
+              }
             />
             <Column
               title='Notes'
-              dataIndex='notes'
-              key='notes'
+              dataIndex='notesCount'
+              key='notesCount'
               width={100}
-              render={(_, user: UserId) => {
-                const count = notes.filter(
-                  (note) => note.authorId === user.id
-                ).length;
-                return <span>{count}</span>;
-              }}
+              sorter={(a, b) => (a.notesCount ?? 0) - (b.notesCount ?? 0)}
+              sortDirections={['descend', 'ascend']}
+              defaultSortOrder='descend'
             />
             <Column
               title='Actions'

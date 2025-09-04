@@ -55,14 +55,14 @@ export class UserService {
     }
 
     async list(currentUser: CurrentUser) {
-        if (
-            currentUser.role === UserRole.ADMIN ||
-            currentUser.role === UserRole.ROOT_ADMIN
-        ) {
-            return this.userRepository.find(baseFindOptions)
+        if (currentUser.role === UserRole.ADMIN) {
+            return this.userRepository.find({
+                ...baseFindOptions,
+                where: { createdById: currentUser.userId },
+            })
         }
 
-        // return this.userRepository.find(baseFindOptions)
+        return this.userRepository.find(baseFindOptions)
     }
 
     async find(id: string): Promise<User | string> {
