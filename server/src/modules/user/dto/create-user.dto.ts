@@ -4,6 +4,8 @@ import {
     MinLength,
     MaxLength,
     IsEnum,
+    IsOptional,
+    IsBoolean,
 } from 'class-validator'
 import { UserRole } from '../entities/users.entity'
 import { ApiProperty } from '@nestjs/swagger'
@@ -36,4 +38,8 @@ export class CreateUserDto {
     })
     @IsEnum(UserRole)
     role: UserRole
+
+    @IsOptional()
+    @IsBoolean()
+    isSent?: boolean
 }

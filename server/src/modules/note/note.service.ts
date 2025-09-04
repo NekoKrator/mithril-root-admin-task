@@ -94,6 +94,12 @@ export class NoteService {
             throw new NotFoundException("You don't have permission")
         }
 
+        if (dto.reminderDate === note.reminderDate?.toISOString()) {
+            note.isSent = true
+        } else {
+            note.isSent = false
+        }
+
         Object.assign(note, dto)
 
         return await this.noteRepository.save(note)

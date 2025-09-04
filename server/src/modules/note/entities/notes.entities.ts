@@ -29,6 +29,9 @@ export class Note {
     @Column()
     authorId: string
 
+    @Column({ default: false })
+    isSent: boolean
+
     @CreateDateColumn({ type: 'timestamptz' })
     createdAt: Date
 }

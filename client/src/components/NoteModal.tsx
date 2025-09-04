@@ -11,7 +11,7 @@ export default function NoteModal(props: NoteModalProps) {
   const { onDone, triggerText } = props;
   const mode = props.mode;
   const note = props.mode === 'edit' ? props.note : undefined;
-  const [reminderDate, setReminderDate] = useState<Date | null>(null);
+  // const [reminderDate, setReminderDate] = useState<Date | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -34,10 +34,10 @@ export default function NoteModal(props: NoteModalProps) {
       };
 
       if (isEditMode && note) {
+        console.log(payload);
         await updateNote(note.id, { ...payload });
       } else {
-        values.reminderDate = reminderDate;
-
+        console.log(payload);
         await createNote({ ...payload });
       }
 
@@ -69,7 +69,7 @@ export default function NoteModal(props: NoteModalProps) {
   };
 
   const onChange: DatePickerProps['onChange'] = (_, date) => {
-    setReminderDate(new Date(String(date)));
+    // setReminderDate(new Date(String(date)));
   };
 
   return (

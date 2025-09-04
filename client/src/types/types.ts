@@ -30,6 +30,7 @@ export interface Note {
 export interface NoteId extends Note {
   id: string,
   authorId: string,
+  isSent: boolean
 }
 
 export type UserFormData = z.infer<typeof UserSchema>;

@@ -128,7 +128,11 @@ export default function Home() {
                         e.currentTarget.style.transform = 'scale(1)';
                         e.currentTarget.style.boxShadow = 'none';
                       }}
-                      onClick={() => setSelectedNote(note)}
+                      onClick={() => {
+                        setSelectedNote(note);
+                        console.log(note);
+                        console.log(typeof note.reminderDate);
+                      }}
                       extra={
                         <Space
                           size='small'
@@ -191,9 +195,17 @@ export default function Home() {
                   justifyContent: 'center',
                 }}
               >
-                {format(selectedNote.reminderDate, 'PPP, HH:mm', {
-                  locale: enUS,
-                })}
+                {selectedNote.isSent
+                  ? `The reminder was sent at ${format(
+                      selectedNote.reminderDate,
+                      'PPP, HH:mm',
+                      { locale: enUS }
+                    )}`
+                  : `A reminder will be sent at ${format(
+                      selectedNote.reminderDate,
+                      'PPP, HH:mm',
+                      { locale: enUS }
+                    )}`}
               </Typography.Paragraph>
             ) : null
           }

@@ -28,12 +28,11 @@ export class TaskService {
 
     @Cron('*/10 * * * * *')
     async handleCronJob() {
-        // const notes = await this.noteService.list()
         const notes = await this.noteRepository.find()
         const now = new Date()
 
         notes
-            .filter((note) => note.reminderDate)
+            .filter((note) => note.reminderDate && note.isSent === false)
             .forEach((note) => {
                 if (!note.reminderDate) {
                     return
@@ -58,12 +57,18 @@ export class TaskService {
             String(note.reminderDate)
         )
 
-        await this.noteService.delete(note.id, author!.id)
+        // await this.noteService.delete(note.id, author!.id)
         // await this.noteService.update(
         //     note.id,
         //     (note.reminderDate = null),
         //     author!.id
         // )
+
+        // await this.noteService.update(isSent = true)
+
+        note.isSent = true
+
+        return await this.noteRepository.save(note)
 
         return
     }
