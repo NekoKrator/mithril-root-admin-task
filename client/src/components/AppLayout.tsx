@@ -6,10 +6,12 @@ import Home from '../pages/HomePage';
 import AppHeader from './AppHeader';
 import { Layout } from 'antd';
 import UserPage from '../pages/UserPage';
+import ResetPasswordPage from '../pages/ResetPasswordPage';
 
 export default function AppLayout() {
   const location = useLocation();
-  const hideHeader = location.pathname === '/login';
+  const hideHeader =
+    location.pathname === '/login' || location.pathname === '/reset-password';
 
   return (
     <Layout style={{ height: '100vh', overflow: 'hidden' }}>
@@ -36,6 +38,8 @@ export default function AppLayout() {
             </ProtectedRoute>
           }
         />
+
+        <Route path='/reset-password' element={<ResetPasswordPage />} />
       </Routes>
     </Layout>
   );

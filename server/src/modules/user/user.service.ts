@@ -69,7 +69,6 @@ export class UserService {
         const user = await this.userRepository.findOne({ where: { id } })
 
         if (!user) {
-            // throw new NotFoundException(`User with id ${id} not found`)
             return `User with id ${id} not found`
         }
 
@@ -78,6 +77,10 @@ export class UserService {
 
     async findByEmail(email: string): Promise<User | null> {
         return this.userRepository.findOne({ where: { email } })
+    }
+
+    async findById(id: string): Promise<User | null> {
+        return this.userRepository.findOne({ where: { id } })
     }
 
     async update(id: string, dto: UpdateUserDto) {

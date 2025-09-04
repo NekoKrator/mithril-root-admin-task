@@ -49,6 +49,6 @@ export class User {
     @OneToMany(() => User, (user) => user.createdBy)
     createdUsers?: User[]
 
-    @CreateDateColumn()
+    @CreateDateColumn({ type: 'timestamptz' })
     createdAt: Date
 }

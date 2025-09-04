@@ -7,6 +7,7 @@ import { UserController } from './modules/user/user.controller'
 import { MailModule } from './modules/mail/mail.module'
 import { NoteModule } from './modules/note/note.module'
 import { ScheduleModule } from '@nestjs/schedule'
+import { TaskService } from './modules/task/task/task.service'
 
 @Module({
     imports: [
@@ -34,5 +35,6 @@ import { ScheduleModule } from '@nestjs/schedule'
         NoteModule,
     ],
     controllers: [UserController],
+    providers: [TaskService],
 })
 export class AppModule { }

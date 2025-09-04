@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import { login, forgotPassword } from '../services/auth';
-import { useNavigate } from 'react-router-dom';
-import { useWatch } from 'antd/es/form/Form';
-import { LockOutlined, MailOutlined } from '@ant-design/icons';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { LockOutlined } from '@ant-design/icons';
 import {
   Button,
   Form,
@@ -13,37 +11,38 @@ import {
   Typography,
   Flex,
 } from 'antd';
-import type { User } from '../types/types';
+import { resetPassword } from '../services/auth';
 
-export default function LoginPage() {
+export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
 
-  const emailValue = useWatch('email', form);
-  const emailError = form.getFieldError('email');
+  if (!token) {
+    setError('Reset token is missing or invalid');
+    setLoading(false);
+    return;
+  }
 
-  const handleForgot = async () => {
-    try {
-      await forgotPassword(emailValue);
-    } catch {
-      setError('Failed to send email');
-    }
-  };
-
-  const onFinish = async (values: User) => {
+  const onFinish = async (values: { password: string; confirm: string }) => {
     setLoading(true);
     setError(null);
 
-    try {
-      const { email, password } = values;
-      await login(email, password);
+    if (values.password !== values.confirm) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
 
-      navigate('/');
+    try {
+      await resetPassword(token, values.password);
+      navigate('/login');
     } catch {
-      setError('Invalid email or password');
+      setError('Failed to reset password');
     } finally {
       setLoading(false);
     }
@@ -72,58 +71,49 @@ export default function LoginPage() {
         >
           <div style={{ textAlign: 'center', marginBottom: 24 }}>
             <Typography.Title level={3} style={{ margin: 0, marginBottom: 8 }}>
-              Login to Your Account
+              Reset Your Password
             </Typography.Title>
             <Typography.Text type='secondary'>
-              Forgot password? Enter email and press 'Forgot?'
+              Enter your new password below
             </Typography.Text>
           </div>
 
           <Form
             form={form}
-            name='login'
+            name='resetPassword'
             onFinish={onFinish}
             layout='vertical'
             autoComplete='off'
           >
             <Form.Item
-              label='Email'
-              name='email'
+              label='New Password'
+              name='password'
               rules={[
-                { required: true, message: 'Please input your Email!' },
-                { type: 'email', message: 'Invalid email format!' },
+                {
+                  required: true,
+                  message: 'Please input your new password!',
+                },
+                { min: 6, message: 'Password must be at least 6 characters' },
               ]}
-              validateTrigger='onChange'
             >
-              <Input
-                prefix={<MailOutlined />}
-                placeholder='Email'
+              <Input.Password
+                prefix={<LockOutlined />}
+                placeholder='New password'
                 disabled={loading}
               />
             </Form.Item>
 
             <Form.Item
-              label='Password'
-              name='password'
+              label='Confirm Password'
+              name='confirm'
               rules={[
-                { required: true, message: 'Please input your Password!' },
+                { required: true, message: 'Please confirm your password!' },
               ]}
             >
               <Input.Password
                 prefix={<LockOutlined />}
-                placeholder='Password'
+                placeholder='Confirm password'
                 disabled={loading}
-                addonAfter={
-                  <Button
-                    type='link'
-                    size='small'
-                    style={{ padding: 0 }}
-                    onClick={handleForgot}
-                    disabled={!emailValue || emailError.length > 0 || loading}
-                  >
-                    Forgot?
-                  </Button>
-                }
               />
             </Form.Item>
 
@@ -145,7 +135,7 @@ export default function LoginPage() {
                   htmlType='submit'
                   loading={loading}
                 >
-                  {loading ? 'Loading...' : 'Login'}
+                  {loading ? 'Loading...' : 'Reset Password'}
                 </Button>
                 <Button
                   block

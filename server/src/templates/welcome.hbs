@@ -1,8 +1,14 @@
 <html>
     <body>
         <h1>Welcome, {{name}}!</h1>
-        <p>You have been invited to the system by
-            {{creator}}. Your login details:</p>
-        <p>Email: {{email}} Password: {{password}}</p>
+        <p>
+            You have been invited to the system by
+            <strong>{{creator}}</strong>.
+        </p>
+        <p>Your login details:</p>
+        <ul>
+            <li>Email: <strong>{{email}}</strong></li>
+            <li>Password: <strong>{{password}}</strong></li>
+        </ul>
     </body>
 </html>

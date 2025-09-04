@@ -29,6 +29,6 @@ export class Note {
     @Column()
     authorId: string
 
-    @CreateDateColumn()
+    @CreateDateColumn({ type: 'timestamptz' })
     createdAt: Date
 }

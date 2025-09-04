@@ -31,3 +31,15 @@ export function getCurrentUser() {
     return null;
   }
 }
+
+export async function forgotPassword(email: string) {
+  const { data } = await api.post('/auth/forgot', { email })
+
+  return data
+}
+
+export async function resetPassword(token: string, password: string) {
+  const { data } = await api.post('/auth/reset', { token, password })
+
+  return data
+}

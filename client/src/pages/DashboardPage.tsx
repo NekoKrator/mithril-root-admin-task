@@ -13,6 +13,7 @@ import {
   ConfigProvider,
   Space,
   Tag,
+  Flex,
 } from 'antd';
 import Column from 'antd/es/table/Column';
 import type { Role, UserId } from '../types/types';
@@ -84,15 +85,14 @@ export default function DashboardPage() {
             borderRadius: 8,
           }}
         >
-          <div
+          <Flex
             style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
               marginBottom: 24,
             }}
+            align='center'
+            justify='space-between'
           >
-            <Typography.Paragraph style={{ marginBottom: 16 }}>
+            <Typography.Paragraph style={{ margin: 0 }}>
               Welcome, <strong>{currentUser.email}</strong> ({currentUser.role})
             </Typography.Paragraph>
 
@@ -101,7 +101,7 @@ export default function DashboardPage() {
               onDone={handleUserModalDone}
               triggerText='Add New User'
             />
-          </div>
+          </Flex>
 
           <Table<UserId>
             dataSource={users}
@@ -114,6 +114,7 @@ export default function DashboardPage() {
                 `${range[0]}-${range[1]} of ${total} users`,
             }}
             loading={loading}
+            style={{ height: '70vh' }}
           >
             <Column
               title='User ID'

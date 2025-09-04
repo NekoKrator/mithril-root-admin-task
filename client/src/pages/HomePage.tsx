@@ -16,6 +16,7 @@ import {
   Spin,
   Modal,
   Empty,
+  Flex,
 } from 'antd';
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
@@ -84,15 +85,14 @@ export default function Home() {
               borderRadius: 8,
             }}
           >
-            <div
+            <Flex
               style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
                 marginBottom: 24,
               }}
+              justify='space-between'
+              align='center'
             >
-              <Typography.Paragraph style={{ marginBottom: 16 }}>
+              <Typography.Paragraph style={{ margin: 0 }}>
                 Welcome, <strong>{currentUser.email}</strong> (
                 {currentUser.role})
               </Typography.Paragraph>
@@ -102,7 +102,7 @@ export default function Home() {
                 onDone={handleNoteModalDone}
                 triggerText='Add New Note'
               />
-            </div>
+            </Flex>
 
             {notes.length > 0 ? (
               <Row gutter={[16, 16]}>
@@ -165,7 +165,9 @@ export default function Home() {
                 ))}
               </Row>
             ) : (
-              <Empty />
+              <Flex justify='center' align='center' style={{ height: '70vh' }}>
+                <Empty description='No data available' />
+              </Flex>
             )}
           </Card>
         </Spin>
