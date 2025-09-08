@@ -7,6 +7,7 @@ import AppHeader from './AppHeader';
 import { Layout } from 'antd';
 import UserPage from '../pages/UserPage';
 import ResetPasswordPage from '../pages/ResetPasswordPage';
+import NotePage from '../pages/NotePage';
 
 export default function AppLayout() {
   const location = useLocation();
@@ -27,6 +28,8 @@ export default function AppLayout() {
             </ProtectedRoute>
           }
         />
+
+        <Route path='note/:noteId' element={<NotePage />} />
 
         <Route path='/login' element={<Login />} />
 

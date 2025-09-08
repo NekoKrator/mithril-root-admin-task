@@ -47,7 +47,6 @@ export class TaskService {
     }
 
     private async reminderIsOut(note: Note) {
-        console.log(`${note.id} time is out!`)
         const author = await this.userService.findById(note.authorId)
 
         await this.mailService.sendReminder(

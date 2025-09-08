@@ -12,12 +12,14 @@ import {
   ConfigProvider,
   Typography,
   Flex,
+  message,
 } from 'antd';
 import type { User } from '../types/types';
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [messageApi, contextHolder] = message.useMessage();
 
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -26,6 +28,10 @@ export default function LoginPage() {
   const emailError = form.getFieldError('email');
 
   const handleForgot = async () => {
+    messageApi.info(
+      'If this email address exists, a reset link has been sent. Check your email.'
+    );
+
     try {
       await forgotPassword(emailValue);
     } catch {
@@ -102,6 +108,7 @@ export default function LoginPage() {
               />
             </Form.Item>
 
+            {contextHolder}
             <Form.Item
               label='Password'
               name='password'

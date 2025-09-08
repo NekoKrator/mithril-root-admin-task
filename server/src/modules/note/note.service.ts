@@ -118,6 +118,7 @@ export class NoteService {
             where: { id },
             relations: ['author'],
         })
+
         if (!note) {
             throw new NotFoundException('Note not found')
         }

@@ -26,6 +26,7 @@ export class UserController {
     @Roles('root_admin', 'admin')
     async create(@Body() dto: CreateUserDto, @Req() req: RequestWithUser) {
         const creatorId = req.user.userId
+
         return this.usersService.create(dto, creatorId)
     }
 

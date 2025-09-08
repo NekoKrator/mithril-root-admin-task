@@ -5,8 +5,10 @@ import {
     CreateDateColumn,
     ManyToOne,
     JoinColumn,
+    OneToMany,
 } from 'typeorm'
-import { User } from 'src/modules/user/entities/users.entity'
+import { User } from '../../user/entities/users.entity'
+import { Visit } from '../../visit/entities/visit.entity'
 
 @Entity({ name: 'notes' })
 export class Note {
@@ -28,6 +30,9 @@ export class Note {
 
     @Column()
     authorId: string
+
+    @OneToMany(() => Visit, (visit) => visit.note)
+    viewedPage: Visit[]
 
     @Column({ default: false })
     isSent: boolean

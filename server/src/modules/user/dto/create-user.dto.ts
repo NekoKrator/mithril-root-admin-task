@@ -11,11 +11,15 @@ import { UserRole } from '../entities/users.entity'
 import { ApiProperty } from '@nestjs/swagger'
 
 export class CreateUserDto {
+    @ApiProperty({
+        example: 'john.doe@mail.com',
+        required: true,
+    })
     @IsEmail()
     email: string
 
     @ApiProperty({
-        example: 'john.doe@mail.com',
+        example: '12345',
         required: true,
     })
     @IsString()

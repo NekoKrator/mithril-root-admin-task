@@ -74,11 +74,9 @@ export class AuthService {
             return `User with id ${userId} not found`
         }
 
-        console.log(newPassword)
         const hashed = await bcrypt.hash(newPassword, 10)
 
         user.password = hashed
-        console.log(hashed)
         await this.userRepository.update(userId, { password: hashed })
 
         return true

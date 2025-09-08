@@ -33,6 +33,14 @@ export interface NoteId extends Note {
   isSent: boolean
 }
 
+export interface DataType {
+  email: string,
+  name: string
+}
+
+export type DataIndex = keyof DataType;
+
+
 export type UserFormData = z.infer<typeof UserSchema>;
 
 export interface CreateModal {
@@ -68,4 +76,15 @@ export type UserModalProps = (CreateModalProps | EditModalProps) & {
 
 export type NoteModalProps = (CreateModalProps | NoteEditModalProps) & {
   triggerText?: string
+}
+
+export interface DashboardTableProps {
+  currentUser: UserId
+  loading: boolean
+}
+
+export interface Visit {
+  note: NoteId
+  noteId: string
+  visitId: string
 }

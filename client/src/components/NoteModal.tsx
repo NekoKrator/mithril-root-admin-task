@@ -1,7 +1,15 @@
-import { Button, Form, DatePicker, Input, Typography, Modal } from 'antd';
-import { BookOutlined } from '@ant-design/icons';
+import {
+  Button,
+  Form,
+  DatePicker,
+  Input,
+  Typography,
+  Modal,
+  Switch,
+  Space,
+} from 'antd';
+import { BookOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import type { NoteModalProps, Note } from '../types/types';
-import type { DatePickerProps } from 'antd';
 import { useState } from 'react';
 import { createNote, updateNote } from '../services/note';
 import dayjs from 'dayjs';
@@ -11,15 +19,15 @@ export default function NoteModal(props: NoteModalProps) {
   const { onDone, triggerText } = props;
   const mode = props.mode;
   const note = props.mode === 'edit' ? props.note : undefined;
-  // const [reminderDate, setReminderDate] = useState<Date | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [dateToggle, setDateToggle] = useState(false);
 
   const [form] = Form.useForm();
 
   const isEditMode = mode === 'edit';
-  const modalTitle = isEditMode ? 'Edit Note' : 'Create Note';
+  const modalTitle = isEditMode ? 'Edit This Note' : 'Create New Note';
   const submitButtonText = isEditMode ? 'Update Note' : 'Create Note';
   const loadingText = isEditMode ? 'Updating...' : 'Loading...';
 
@@ -68,10 +76,6 @@ export default function NoteModal(props: NoteModalProps) {
     }
   };
 
-  const onChange: DatePickerProps['onChange'] = (_, date) => {
-    // setReminderDate(new Date(String(date)));
-  };
-
   return (
     <>
       <Button
@@ -88,7 +92,7 @@ export default function NoteModal(props: NoteModalProps) {
             level={3}
             style={{ margin: 0, textAlign: 'center' }}
           >
-            Create Note
+            {modalTitle}
           </Typography.Title>
         }
         open={isModalOpen}
@@ -102,13 +106,9 @@ export default function NoteModal(props: NoteModalProps) {
             boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
             borderRadius: 8,
           },
-          body: {
-            padding: '24px',
-          },
           header: {
             backgroundColor: '#ffffff',
             borderBottom: 'none',
-            padding: '24px 24px 0',
           },
         }}
       >
@@ -140,7 +140,21 @@ export default function NoteModal(props: NoteModalProps) {
           </Form.Item>
 
           <Form.Item label='Reminder Date' name='reminderDate'>
-            <DatePicker showTime disabled={loading} onChange={onChange} />
+            <Space>
+              <Space>
+                <Typography.Text type='secondary'>
+                  Add reminder?
+                </Typography.Text>
+                <Switch
+                  checkedChildren={<CheckOutlined />}
+                  unCheckedChildren={<CloseOutlined />}
+                  onChange={() =>
+                    dateToggle ? setDateToggle(false) : setDateToggle(true)
+                  }
+                />
+              </Space>
+              <DatePicker showTime disabled={loading || dateToggle} />
+            </Space>
           </Form.Item>
 
           {error && (

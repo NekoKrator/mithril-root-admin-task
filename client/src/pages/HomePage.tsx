@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { getCurrentUser } from '../services/auth';
 import { getNotes, deleteNote } from '../services/note';
 import NoteModal from '../components/NoteModal';
-import type { NoteId } from '../types/types';
+import type { NoteId, Visit } from '../types/types';
 import {
   Layout,
   Card,
@@ -17,16 +17,37 @@ import {
   Modal,
   Empty,
   Flex,
+  notification,
 } from 'antd';
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
+import { getVisits } from '../services/visti';
 
 export default function Home() {
   const [notes, setNotes] = useState<NoteId[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedNote, setSelectedNote] = useState<NoteId | null>(null);
+  const [visitedNotes, setvisitedNotes] = useState({});
+  const [api, contextHolder] = notification.useNotification();
 
   const currentUser = getCurrentUser();
+
+  const getAllVisits = useCallback(async () => {
+    try {
+      const visits = await getVisits();
+      const visitMap = new Map();
+
+      visits.forEach((visit: Visit) => {
+        const id = visit.note?.id || visit.noteId;
+        visitMap.set(id, (visitMap.get(id) || 0) + 1);
+      });
+
+      setvisitedNotes(Object.fromEntries(visitMap));
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+  console.log(visitedNotes);
 
   const loadNotes = useCallback(async () => {
     setLoading(true);
@@ -40,10 +61,6 @@ export default function Home() {
       setLoading(false);
     }
   }, [currentUser.id]);
-
-  useEffect(() => {
-    loadNotes();
-  }, [loadNotes]);
 
   const handleNoteModalDone = useCallback(() => {
     loadNotes();
@@ -61,8 +78,33 @@ export default function Home() {
     [loadNotes]
   );
 
+  const handleCopy = async (note: NoteId) => {
+    try {
+      await navigator.clipboard.writeText(
+        `${import.meta.env.VITE_CLIENT_URL}note/${note.id}`
+      );
+    } catch (error) {
+      console.error('Failed to copy text: ', error);
+    }
+  };
+
+  const visitNotifications = useCallback(() => {
+    api.open({
+      message: 'New Notification',
+      description: 'This is a push notification from Ant Design.',
+      placement: 'bottomRight',
+    });
+  }, [api]);
+
+  useEffect(() => {
+    loadNotes();
+    getAllVisits();
+    visitNotifications();
+  }, [loadNotes, getAllVisits, visitNotifications]);
+
   return (
     <ConfigProvider>
+      {contextHolder}
       <Layout
         style={{
           minHeight: '100vh',
@@ -130,8 +172,6 @@ export default function Home() {
                       }}
                       onClick={() => {
                         setSelectedNote(note);
-                        console.log(note);
-                        console.log(typeof note.reminderDate);
                       }}
                       extra={
                         <Space
@@ -144,6 +184,9 @@ export default function Home() {
                             onDone={handleNoteModalDone}
                             triggerText='Edit'
                           />
+                          <Button size='small' onClick={() => handleCopy(note)}>
+                            Copy
+                          </Button>
                           <Popconfirm
                             title='Delete note'
                             description={`Are you sure you want to delete "${note.title}"?`}

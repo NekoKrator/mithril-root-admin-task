@@ -22,16 +22,17 @@ import type { InputRef } from 'antd';
 import { roleColors } from '../services/roleColors';
 import { fetchNotes } from '../services/note';
 import { SearchOutlined } from '@ant-design/icons';
+import type { FilterDropdownProps } from 'antd/es/table/interface';
 
 export default function DashboardPage() {
   const [users, setUsers] = useState<UserId[]>([]);
   const [notes, setNotes] = useState<NoteId[]>([]);
+  const [filteredInfo, setFilteredInfo] = useState<Record<string, any>>({});
+  const [sortedInfo, setSortedInfo] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const currentUser = getCurrentUser();
 
-  // const [searchText, setSearchText] = useState('');
-  // const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef<InputRef>(null);
 
   const loadUsers = useCallback(async () => {
@@ -88,6 +89,24 @@ export default function DashboardPage() {
     notesCount: notes.filter((n) => n.authorId === u.id).length,
   }));
 
+  const handleSearch = (confirm: FilterDropdownProps['confirm']) => {
+    confirm();
+  };
+
+  const handleReset = (clearFilters: () => void) => {
+    clearFilters();
+  };
+
+  const handleTableChange = (pagination: any, filters: any, sorter: any) => {
+    setFilteredInfo(filters);
+    setSortedInfo(sorter);
+  };
+
+  const handleClearFilters = () => {
+    setFilteredInfo({});
+    setSortedInfo({});
+  };
+
   return (
     <ConfigProvider>
       <Layout
@@ -122,11 +141,14 @@ export default function DashboardPage() {
               Welcome, <strong>{currentUser.email}</strong> ({currentUser.role})
             </Typography.Paragraph>
 
-            <UserModal
-              mode='create'
-              onDone={handleUserModalDone}
-              triggerText='Add New User'
-            />
+            <Space>
+              <Button onClick={handleClearFilters}>Clear All Filters</Button>
+              <UserModal
+                mode='create'
+                onDone={handleUserModalDone}
+                triggerText='Add New User'
+              />
+            </Space>
           </Flex>
 
           <Table<UserId>
@@ -139,6 +161,7 @@ export default function DashboardPage() {
               showTotal: (total, range) =>
                 `${range[0]}-${range[1]} of ${total} users`,
             }}
+            onChange={handleTableChange}
             loading={loading}
             style={{ height: '70vh' }}
           >
@@ -162,7 +185,19 @@ export default function DashboardPage() {
               key='email'
               width={200}
               ellipsis
-              filterDropdown={
+              filteredValue={filteredInfo.email || null}
+              filterIcon={(filtered: boolean) => (
+                <SearchOutlined
+                  style={{ color: filtered ? '#1677ff' : undefined }}
+                />
+              )}
+              filterDropdown={({
+                setSelectedKeys,
+                selectedKeys,
+                confirm,
+                clearFilters,
+                close,
+              }) => (
                 <div
                   style={{ padding: 8 }}
                   onKeyDown={(e) => e.stopPropagation()}
@@ -170,25 +205,44 @@ export default function DashboardPage() {
                   <Input
                     ref={searchInput}
                     placeholder={'Search email'}
+                    value={selectedKeys[0]}
+                    onChange={(e) =>
+                      setSelectedKeys(e.target.value ? [e.target.value] : [])
+                    }
+                    onPressEnter={() => handleSearch(confirm)}
                     style={{ marginBottom: 8, display: 'block' }}
                   />
                   <Space>
                     <Button
                       type='primary'
                       icon={<SearchOutlined />}
+                      onClick={() => handleSearch(confirm)}
                       size='small'
                       style={{ width: 90 }}
                     >
                       Search
                     </Button>
-                    <Button size='small' style={{ width: 90 }}>
+                    <Button
+                      onClick={() => clearFilters && handleReset(clearFilters)}
+                      size='small'
+                      style={{ width: 90 }}
+                    >
                       Reset
                     </Button>
-                    <Button type='link' size='small'>
-                      Close
+                    <Button
+                      type='link'
+                      size='small'
+                      onClick={() => {
+                        close();
+                      }}
+                    >
+                      close
                     </Button>
                   </Space>
                 </div>
+              )}
+              onFilter={(value, record) =>
+                record['email'].includes(value as string)
               }
             />
             <Column
@@ -236,14 +290,18 @@ export default function DashboardPage() {
                 },
               ]}
               onFilter={(value, record) =>
-                record.role.includes(value as string)
+                record.role.indexOf(value as Role) === 0
               }
+              filteredValue={filteredInfo.role || null}
             />
             <Column
               title='Notes'
               dataIndex='notesCount'
               key='notesCount'
               width={100}
+              sortOrder={
+                sortedInfo.columnKey === 'notesCount' ? sortedInfo.order : null
+              }
               sorter={(a, b) => (a.notesCount ?? 0) - (b.notesCount ?? 0)}
               sortDirections={['descend', 'ascend']}
               defaultSortOrder='descend'

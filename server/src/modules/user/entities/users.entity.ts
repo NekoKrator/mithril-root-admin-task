@@ -9,6 +9,7 @@ import {
 } from 'typeorm'
 
 import { Note } from '../../note/entities/notes.entities'
+import { Visit } from 'src/modules/visit/entities/visit.entity'
 
 export enum UserRole {
     ROOT_ADMIN = 'root_admin',
@@ -48,6 +49,9 @@ export class User {
 
     @OneToMany(() => User, (user) => user.createdBy)
     createdUsers?: User[]
+
+    @OneToMany(() => Visit, (visit) => visit.visitor)
+    visitedPage?: Visit[]
 
     @CreateDateColumn({ type: 'timestamptz' })
     createdAt: Date
