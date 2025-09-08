@@ -49,15 +49,6 @@ export default function UserPage() {
     }
   }, [userId]);
 
-  // useEffect(() => {
-  //   if (currentUser.id === userId) {
-  //     navigate('/');
-  //   } else {
-  //     loadUser();
-  //     loadNotes();
-  //   }
-  // }, [currentUser, userId, loadUser, loadNotes, navigate]);
-
   useEffect(() => {
     loadUser();
     loadNotes();

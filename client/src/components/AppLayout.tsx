@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 import Login from '../pages/LoginPage';
 import Dashboard from '../pages/DashboardPage';
@@ -18,7 +18,14 @@ export default function AppLayout() {
     <Layout style={{ height: '100vh', overflow: 'hidden' }}>
       {!hideHeader && <AppHeader />}
       <Routes>
-        <Route path='/' element={<Home />} />
+        <Route
+          path='/'
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path='user/:userId'

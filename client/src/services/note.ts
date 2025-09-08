@@ -20,6 +20,7 @@ export async function getNotes(id: string) {
 }
 
 export async function updateNote(id: string, payload: Note) {
+  console.log(payload)
   const { data } = await api.patch(`/notes/${id}`, payload);
 
   return data;

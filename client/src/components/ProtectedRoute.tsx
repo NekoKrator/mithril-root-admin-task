@@ -11,7 +11,10 @@ export default function ProtectedRoute({
 }) {
   const user = getCurrentUser();
 
+  console.log(user);
+
   if (!user) {
+    console.log('no');
     return <Navigate to='/login' replace />;
   }
 

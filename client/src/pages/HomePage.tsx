@@ -10,15 +10,20 @@ import {
   Button,
   Popconfirm,
   ConfigProvider,
-  Row,
-  Col,
   Space,
   Spin,
   Modal,
   Empty,
   Flex,
   notification,
+  List,
 } from 'antd';
+import {
+  CopyOutlined,
+  DeleteOutlined,
+  ReadOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import { getVisits } from '../services/visti';
@@ -26,6 +31,7 @@ import { getVisits } from '../services/visti';
 export default function Home() {
   const [notes, setNotes] = useState<NoteId[]>([]);
   const [loading, setLoading] = useState(false);
+  const [sumOfVisitors, setSumOfVisitors] = useState(0);
   const [selectedNote, setSelectedNote] = useState<NoteId | null>(null);
   const [visitedNotes, setvisitedNotes] = useState({});
   const [api, contextHolder] = notification.useNotification();
@@ -47,14 +53,18 @@ export default function Home() {
       console.error(error);
     }
   }, []);
-  console.log(visitedNotes);
 
   const loadNotes = useCallback(async () => {
     setLoading(true);
 
     try {
-      const fetchedNotes = await getNotes(currentUser.id);
-      setNotes(fetchedNotes);
+      const fetchUsers = await getNotes(currentUser.id);
+      const sortedNotes = [...fetchUsers].sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+
+      setNotes(sortedNotes);
     } catch (error) {
       console.error('Failed to load notes:', error);
     } finally {
@@ -88,19 +98,62 @@ export default function Home() {
     }
   };
 
+  const countWords = useCallback((noteId: NoteId) => {
+    const trimmedText = noteId.content.trim();
+
+    if (trimmedText === '') {
+      return 0;
+    }
+
+    const wordsArray = trimmedText.split(/\s+/);
+    const filteredWords = wordsArray.filter((word) => word.length > 0);
+
+    return filteredWords.length;
+  }, []);
+
+  // const visitorsCount = useCallback(() => {
+  //   setSumOfVisitors(
+  //     Object.keys(visitedNotes)
+  //       .map((visit) => visitedNotes[visit])
+  //       .reduce((accumulator, currentValue) => accumulator + currentValue, 0)
+  //   );
+  // }, [visitedNotes]);
+
   const visitNotifications = useCallback(() => {
     api.open({
-      message: 'New Notification',
+      message: `New Notification ${sumOfVisitors}`,
       description: 'This is a push notification from Ant Design.',
       placement: 'bottomRight',
     });
-  }, [api]);
+  }, [api, sumOfVisitors]);
+
+  console.log(currentUser);
 
   useEffect(() => {
     loadNotes();
     getAllVisits();
     visitNotifications();
   }, [loadNotes, getAllVisits, visitNotifications]);
+
+  const getVisitById = useCallback(
+    (noteId: string) => {
+      const key = Object.keys(visitedNotes).find((visit) => visit === noteId);
+
+      if (key) {
+        return (
+          <>
+            <span>
+              <UserOutlined /> {''}
+              {visitedNotes[key]}
+            </span>
+          </>
+        );
+      } else {
+        return 'There is no viewers yet.';
+      }
+    },
+    [visitedNotes]
+  );
 
   return (
     <ConfigProvider>
@@ -147,17 +200,37 @@ export default function Home() {
             </Flex>
 
             {notes.length > 0 ? (
-              <Row gutter={[16, 16]}>
-                {notes.map((note) => (
-                  <Col xs={24} sm={12} md={8} lg={6} key={note.id}>
+              <List
+                style={{ height: '70vh' }}
+                grid={{
+                  gutter: 16,
+                  xs: 1,
+                  sm: 2,
+                  md: 4,
+                  lg: 4,
+                  xl: 5,
+                  xxl: 3,
+                }}
+                dataSource={notes}
+                pagination={{
+                  pageSize: 9,
+                  showSizeChanger: true,
+                  showTotal: (total, range) =>
+                    `${range[0]}-${range[1]} of ${total} notes`,
+                  style: { marginTop: '-16px' },
+                }}
+                renderItem={(note) => (
+                  <List.Item key={note.id}>
                     <Card
                       title={note.title}
                       bordered
                       hoverable
                       style={{
                         height: '100%',
+                        width: '100%',
                         display: 'flex',
                         flexDirection: 'column',
+                        borderRadius: 8,
                         transition: 'transform 0.2s ease, box-shadow 0.2s ease',
                       }}
                       bodyStyle={{ flex: 1, cursor: 'pointer' }}
@@ -173,7 +246,14 @@ export default function Home() {
                       onClick={() => {
                         setSelectedNote(note);
                       }}
-                      extra={
+                      actions={[
+                        <span>
+                          <span>
+                            <ReadOutlined /> {''}
+                          </span>
+                          {countWords(note)}
+                        </span>,
+                        <span>{getVisitById(note.id)}</span>,
                         <Space
                           size='small'
                           onClick={(e) => e.stopPropagation()}
@@ -184,8 +264,12 @@ export default function Home() {
                             onDone={handleNoteModalDone}
                             triggerText='Edit'
                           />
-                          <Button size='small' onClick={() => handleCopy(note)}>
-                            Copy
+                          <Button
+                            size='small'
+                            type='link'
+                            onClick={() => handleCopy(note)}
+                          >
+                            <CopyOutlined />
                           </Button>
                           <Popconfirm
                             title='Delete note'
@@ -195,22 +279,22 @@ export default function Home() {
                             okType='danger'
                             onConfirm={() => handleDeleteNote(note.id)}
                           >
-                            <Button danger size='small'>
-                              Delete
+                            <Button danger size='small' type='link'>
+                              <DeleteOutlined />
                             </Button>
                           </Popconfirm>
-                        </Space>
-                      }
+                        </Space>,
+                      ]}
                     >
                       <Typography.Paragraph
-                        ellipsis={{ rows: 4, expandable: false }}
+                        ellipsis={{ rows: 1, expandable: false }}
                       >
                         {note.content}
                       </Typography.Paragraph>
                     </Card>
-                  </Col>
-                ))}
-              </Row>
+                  </List.Item>
+                )}
+              ></List>
             ) : (
               <Flex justify='center' align='center' style={{ height: '70vh' }}>
                 <Empty description='No data available' />
@@ -271,7 +355,14 @@ export default function Home() {
             },
           }}
         >
-          <Typography.Paragraph style={{ whiteSpace: 'pre-wrap' }}>
+          <Typography.Paragraph
+            style={{
+              whiteSpace: 'pre-wrap',
+              maxWidth: '100%',
+              lineHeight: '1.6',
+              marginBottom: 0,
+            }}
+          >
             {selectedNote?.content}
           </Typography.Paragraph>
         </Modal>

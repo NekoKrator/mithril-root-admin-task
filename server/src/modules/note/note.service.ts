@@ -76,6 +76,7 @@ export class NoteService {
     }
 
     async update(id: string, dto: UpdateNoteDto, requestorId: string) {
+        console.log(dto)
         const note = await this.noteRepository.findOne({ where: { id } })
 
         if (!note) {

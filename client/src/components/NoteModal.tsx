@@ -7,8 +7,14 @@ import {
   Modal,
   Switch,
   Space,
+  type DatePickerProps,
 } from 'antd';
-import { BookOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import {
+  BookOutlined,
+  CheckOutlined,
+  CloseOutlined,
+  EditOutlined,
+} from '@ant-design/icons';
 import type { NoteModalProps, Note } from '../types/types';
 import { useState } from 'react';
 import { createNote, updateNote } from '../services/note';
@@ -23,6 +29,7 @@ export default function NoteModal(props: NoteModalProps) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [dateToggle, setDateToggle] = useState(false);
+  const [reminderDate, setReminderDate] = useState<Date | null>(null);
 
   const [form] = Form.useForm();
 
@@ -38,14 +45,12 @@ export default function NoteModal(props: NoteModalProps) {
     try {
       const payload = {
         ...values,
-        reminderDate: values.reminderDate ? values.reminderDate : null,
+        reminderDate: reminderDate ? reminderDate : null,
       };
 
       if (isEditMode && note) {
-        console.log(payload);
         await updateNote(note.id, { ...payload });
       } else {
-        console.log(payload);
         await createNote({ ...payload });
       }
 
@@ -76,15 +81,29 @@ export default function NoteModal(props: NoteModalProps) {
     }
   };
 
+  const onChange: DatePickerProps['onChange'] = (_, date) => {
+    setReminderDate(new Date(String(date)));
+  };
+
   return (
     <>
-      <Button
-        type='primary'
-        size={isEditMode ? 'small' : 'middle'}
-        onClick={showModal}
-      >
-        {triggerText || modalTitle}
-      </Button>
+      {isEditMode ? (
+        <Button
+          type='link'
+          size={isEditMode ? 'small' : 'middle'}
+          onClick={showModal}
+        >
+          <EditOutlined />
+        </Button>
+      ) : (
+        <Button
+          type='primary'
+          size={isEditMode ? 'small' : 'middle'}
+          onClick={showModal}
+        >
+          {triggerText || modalTitle}
+        </Button>
+      )}
 
       <Modal
         title={
@@ -141,20 +160,25 @@ export default function NoteModal(props: NoteModalProps) {
 
           <Form.Item label='Reminder Date' name='reminderDate'>
             <Space>
-              <Space>
-                <Typography.Text type='secondary'>
-                  Add reminder?
-                </Typography.Text>
-                <Switch
-                  checkedChildren={<CheckOutlined />}
-                  unCheckedChildren={<CloseOutlined />}
-                  onChange={() =>
-                    dateToggle ? setDateToggle(false) : setDateToggle(true)
-                  }
-                />
-              </Space>
-              <DatePicker showTime disabled={loading || dateToggle} />
+              <Switch
+                checkedChildren={<CheckOutlined />}
+                unCheckedChildren={<CloseOutlined />}
+                checked={!dateToggle}
+                onChange={() => setDateToggle((prev) => !prev)}
+              />
+              <DatePicker
+                showTime
+                disabled={loading || dateToggle}
+                style={{ width: '100%' }}
+                onChange={onChange}
+              />
             </Space>
+            <br />
+            <Typography.Text type='secondary' style={{ fontSize: 12 }}>
+              {dateToggle
+                ? 'Turn on the switch to select the reminder date!'
+                : 'Turn off the switch to disable the reminder date!'}
+            </Typography.Text>
           </Form.Item>
 
           {error && (
@@ -166,7 +190,7 @@ export default function NoteModal(props: NoteModalProps) {
             </Typography.Text>
           )}
 
-          <Form.Item>
+          <Form.Item style={{ marginBottom: 0 }}>
             <Button
               block
               type='primary'
